@@ -1,0 +1,1905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Operation: Trade Tower - Year 9 Economics & Business</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;background:#0d1f3c;color:white;min-height:100vh}
+button{cursor:pointer;font-family:inherit}
+input{font-family:inherit}
+.screen{min-height:100vh;padding:1.5rem}
+.gold{color:#d4af37}
+.green{color:#90ee90}
+.red{color:#ff9999}
+.muted{color:#888}
+.card{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:1rem}
+.card-gold{background:rgba(212,175,55,0.1);border:1px solid rgba(212,175,55,0.3);border-radius:10px;padding:1rem}
+.btn-gold{background:#d4af37;color:#0a1628;border:none;border-radius:8px;padding:0.75rem 2rem;font-size:15px;font-weight:bold}
+.btn-ghost{background:transparent;color:#888;border:1px solid #333;border-radius:6px;padding:0.5rem 1rem;font-size:13px}
+.btn-outline-gold{background:rgba(212,175,55,0.15);color:#d4af37;border:1px solid rgba(212,175,55,0.4);border-radius:8px;padding:0.75rem 1.5rem;font-size:14px;font-weight:bold}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem}
+.grid-auto{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:0.65rem}
+.flex{display:flex}
+.flex-center{display:flex;align-items:center;justify-content:center}
+.flex-between{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem}
+.gap1{gap:1rem}
+.gap05{gap:0.5rem}
+.mb1{margin-bottom:1rem}
+.mb15{margin-bottom:1.5rem}
+.mb05{margin-bottom:0.5rem}
+.tag{font-size:11px;border-radius:4px;padding:2px 8px;display:inline-block}
+.progress-bar{background:rgba(255,255,255,0.05);border-radius:8px;padding:4px;margin-bottom:1.25rem}
+.progress-fill{background:#d4af37;height:8px;border-radius:6px;transition:width 0.5s}
+.chip-item{border-radius:20px;padding:0.35rem 0.85rem;font-size:13px;border:1px solid}
+.opt-btn{border-radius:6px;padding:0.55rem 0.75rem;font-size:13px;text-align:left;width:100%;border:1px solid}
+.shake{animation:shake 0.35s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+#cloud-toast{position:fixed;top:16px;right:16px;z-index:9999;padding:8px 14px;border-radius:8px;font-size:13px;font-weight:500;display:flex;align-items:center;gap:6px;transition:opacity 0.4s,transform 0.4s;pointer-events:none;opacity:0;transform:translateY(-8px)}
+#cloud-toast.show{opacity:1;transform:translateY(0)}
+#cloud-toast.saving{background:rgba(20,40,70,0.95);border:1px solid rgba(212,175,55,0.4);color:#d4af37}
+#cloud-toast.saved{background:rgba(20,50,30,0.95);border:1px solid rgba(76,175,80,0.5);color:#90ee90}
+#cloud-toast.error{background:rgba(50,20,20,0.95);border:1px solid rgba(220,80,80,0.5);color:#ff9999}
+.hidden{display:none}
+svg text{font-family:system-ui,sans-serif}
+[title]:hover::after{content:attr(title);position:fixed;background:#1a1a2e;border:1px solid #d4af37;color:#f0e6c0;font-size:12px;padding:6px 10px;border-radius:6px;max-width:280px;z-index:9999;pointer-events:none;white-space:normal;line-height:1.5;bottom:auto;left:50%;transform:translateX(-50%);margin-top:4px;box-shadow:0 4px 12px rgba(0,0,0,0.5)}
+[title]:hover{position:relative}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="cloud-toast"></div>
+
+<script>
+let _toastTimer = null;
+function showCloudToast(type, msg) {
+  const el = document.getElementById("cloud-toast");
+  if (!el) return;
+  clearTimeout(_toastTimer);
+  el.className = "show " + type;
+  el.innerHTML = (type === "saving" ? "☁️" : type === "saved" ? "✅" : "⚠️") + " " + msg;
+  if (type !== "saving") {
+    _toastTimer = setTimeout(() => { el.className = type; }, 2800);
+  }
+}
+const TEACHER_PASSWORD = "Y9Business2026";
+
+const TASKS = [
+  {id:1,topic:"5-Sector Circular Flow",title:"Trade Tower Blueprint: The Circular Flow",type:"diagram",icon:"🔄",codeDigit:"6",
+   instructions:"Label all 5 SECTORS (A-E) AND the 3 LEAKAGE FLOWS (Savings, Tax, Imports) of the five-sector circular flow model. Click the blanks to fill them in.",
+   blanks:[{id:"A",answer:"Households"},{id:"B",answer:"Firms"},{id:"C",answer:"Financial Sector"},{id:"D",answer:"Government"},{id:"E",answer:"Overseas Sector"},{id:"S",answer:"Savings"},{id:"T",answer:"Tax"},{id:"I",answer:"Imports"}],
+   labelOptions:["Households","Firms","Financial Sector","Government","Overseas Sector","Savings","Tax","Imports"]},
+  {id:2,topic:"Australia & Asia Trade",title:"Imports vs Exports: Australia-Asia Trade",type:"sort",icon:"🚢",codeDigit:"3",
+   instructions:"Australia has strong trade links with Asia. Sort each item into EXPORTS (Australia sells to Asia) or IMPORTS (Australia buys from Asia).",
+   cats:["export","import"],labels:["EXPORTS (Australia → Asia) 📤","IMPORTS (Asia → Australia) 📥"],
+   items:[{text:"Iron ore to China",correct:"export"},{text:"Electronics from Japan",correct:"import"},{text:"Coal to Japan",correct:"export"},{text:"Cars from South Korea",correct:"import"},{text:"Natural gas (LNG) to China",correct:"export"},{text:"Clothing from Bangladesh",correct:"import"},{text:"Beef to Indonesia",correct:"export"},{text:"Smartphones from China",correct:"import"},{text:"Wool to China",correct:"export"},{text:"Furniture from Vietnam",correct:"import"},{text:"Education services to international students",correct:"export"},{text:"Machinery from South Korea",correct:"import"}]},
+  {id:3,topic:"Tourism & the Economy",title:"Tourism's Economic Ripple Effect",type:"mcq_multi",icon:"✈️",codeDigit:"8",
+   instructions:"Tourism is a major contributor to the Australian economy. Answer all questions about its economic impact.",
+   questions:[
+     {q:"Which of these is a DIRECT economic benefit of tourism to a regional town?",opts:["Lower interest rates","Increased spending at local cafes and hotels","Reduced government spending","Lower exchange rates"],correct:1},
+     {q:"The 'multiplier effect' in tourism means:",opts:["Tourists multiply in number each year","Tourist spending is re-spent in the local economy, creating extra rounds of income and jobs","Tourism reduces other industries' income","Hotel prices double in peak season"],correct:1},
+     {q:"Which is an example of a NEGATIVE economic/social impact of overtourism?",opts:["More jobs in hospitality","Higher cost of living for locals as prices rise","Improved local infrastructure","Increased export income"],correct:1},
+     {q:"International tourism is recorded in Australia's economy as a:",opts:["Import",  "Export of services","Government expense","Capital outflow"],correct:1}]},
+  {id:4,topic:"Global Supply Chains",title:"Trace the Global Supply Chain",type:"order",icon:"📦",codeDigit:"5",
+   instructions:"Put these stages of a global supply chain (for a smartphone) in the correct order, from raw material to customer. Click to select (turns gold), then click another to swap positions.",
+   steps:["Raw materials (e.g. lithium, rare earth metals) are mined","Components (chips, screens, batteries) are manufactured in different countries","Components are shipped to an assembly plant","Phones are assembled in a factory (e.g. in China or Vietnam)","Finished phones are quality-tested and packaged","Phones are shipped by sea/air freight to distribution centres worldwide","Phones are distributed to retailers in each country","Customers purchase the phone in-store or online"]},
+  {id:5,topic:"Transnational Corporations (TNCs)",title:"TNC Match-Up",type:"match",icon:"🌐",codeDigit:"2",
+   instructions:"Match each transnational corporation feature or example to the correct concept. Click an example (it turns gold), then click the matching concept.",
+   pairs:[{left:"A company with headquarters in one country and operations in many others",right:"Transnational Corporation (TNC)"},{left:"A car company builds factories overseas to cut labour costs",right:"Outsourcing / Offshoring"},{left:"A TNC brings new technology and management skills to a host country",right:"Foreign Direct Investment (FDI) benefit"},{left:"A TNC pays very low wages and has poor working conditions overseas",right:"Exploitation of workers"},{left:"Profits made overseas are sent back to the TNC's home country",right:"Repatriation of profits"},{left:"A TNC uses the same brand and product worldwide",right:"Globalisation of brands"},{left:"A host country gains jobs and tax revenue from a TNC",right:"Foreign Direct Investment (FDI) benefit"},{left:"A TNC moves production to avoid stricter environmental laws",right:"Exploitation of workers"}]},
+  {id:6,topic:"The Global Economy",title:"Globalisation Impact Scenarios",type:"scenario",icon:"🌍",codeDigit:"9",
+   instructions:"Read each scenario about the global economy and identify the BEST description of what is happening.",
+   scenarios:[
+     {text:"An Australian wine company starts exporting to new markets in Asia after a free trade agreement removes tariffs. What economic effect does this best illustrate?",options:["Trade barrier increase","Trade liberalisation increasing exports","Protectionism","Currency devaluation"],correct:1,explanation:"Removing tariffs through a free trade agreement is trade liberalisation, which boosts exports."},
+     {text:"A local Australian manufacturer struggles to compete because cheaper imported goods flood the market. What is this an example of?",options:["A trade surplus","Increased competition due to globalisation","Government subsidy","Currency appreciation"],correct:1,explanation:"Globalisation increases competition from overseas producers."},
+     {text:"The Australian dollar falls in value against the US dollar, making Australian exports cheaper for foreign buyers. What is this called?",options:["Currency depreciation",  "Inflation","Trade deficit","Interest rate cut"],correct:0,explanation:"A fall in the value of a currency against another is called depreciation."},
+     {text:"A government places a tax on imported steel to protect local steel manufacturers. What is this an example of?",options:["Free trade","Protectionism (a trade barrier)","Foreign direct investment","Globalisation"],correct:1,explanation:"A tax on imports designed to protect local industries is protectionism."}]},
+  {id:7,topic:"Competitive Advantage",title:"Strategies for Competitive Advantage",type:"rank",icon:"🏆",codeDigit:"1",
+   instructions:"Match each business example to the type of competitive advantage strategy it is using. Click an example (turns gold), then click the matching strategy.",
+   pairs:[
+     {worker:"A budget airline keeps fares low by cutting extra services and using one aircraft type",motivation:"Cost leadership"},
+     {worker:"A premium phone brand charges more because of unique design and features customers can't get elsewhere",motivation:"Differentiation"},
+     {worker:"A small business sells specialised gluten-free baked goods only to a specific group of customers",motivation:"Niche/focus strategy"},
+     {worker:"A company constantly releases new patented technology before its rivals",motivation:"Innovation advantage"},
+     {worker:"A supermarket chain uses its huge size to negotiate lower prices from suppliers",motivation:"Economies of scale"}],
+   allMotivations:["Cost leadership","Differentiation","Niche/focus strategy","Innovation advantage","Economies of scale"]},
+  {id:8,topic:"Innovation in Business",title:"Crack the Innovation Code",type:"cipher",icon:"💡",codeDigit:"4",
+   instructions:"A secret transmission about business innovation has been intercepted! Use the cipher key below to decode it letter by letter (A=1, B=2 … Z=26, Space=27). Type the decoded message into the box below to unlock the next code digit.",
+   cipherKey:{1:"A",2:"B",3:"C",4:"D",5:"E",6:"F",7:"G",8:"H",9:"I",10:"J",11:"K",12:"L",13:"M",14:"N",15:"O",16:"P",17:"Q",18:"R",19:"S",20:"T",21:"U",22:"V",23:"W",24:"X",25:"Y",26:"Z",27:" "},
+   encoded:[9,14,14,15,22,1,20,9,15,14,27,7,9,22,5,19,27,2,21,19,9,14,5,19,19,5,19,27,1,27,3,15,13,16,5,20,9,20,9,22,5,27,5,4,7,5],
+   displayAnswer:"INNOVATION GIVES BUSINESSES A COMPETITIVE EDGE"},
+  {id:9,topic:"Aboriginal Business Opportunities",title:"First Nations Enterprise Connections",type:"jigsaw",icon:"🪃",codeDigit:"7",
+   instructions:"Connect each business opportunity description to the correct category of Aboriginal and Torres Strait Islander enterprise. Click a description (turns gold), then click the matching category.",
+   pieces:[
+     {desc:"A community-owned tour company shares traditional knowledge and Country with visitors",system:"Indigenous Tourism",eg:"e.g. cultural walking tours, art centres"},
+     {desc:"A native foods business grows and sells bush foods like Kakadu plum and wattleseed to restaurants",system:"Bush Foods & Native Produce",eg:"e.g. native food enterprises"},
+     {desc:"An Aboriginal-owned construction firm wins contracts to build community housing through procurement targets",system:"Indigenous Procurement & Construction",eg:"e.g. Indigenous Procurement Policy"},
+     {desc:"Artists sell paintings and designs through a community art centre, keeping profits within the community",system:"Aboriginal Art & Cultural Enterprises",eg:"e.g. community art centres"},
+     {desc:"A ranger program manages land and sea Country while generating income from land management contracts",system:"Land & Sea Management Enterprises",eg:"e.g. Indigenous Ranger Programs"}]},
+  {id:10,topic:"Marketing Mix",title:"The 4 Ps of Marketing",type:"sort",icon:"📣",codeDigit:"0",
+   instructions:"The marketing mix has 4 Ps: PRODUCT and PRICE decisions, vs PLACE and PROMOTION decisions. Sort each example into the correct half of the marketing mix.",
+   cats:["productprice","placepromotion"],labels:["PRODUCT & PRICE 🏷️","PLACE & PROMOTION 📍📢"],
+   items:[{text:"Deciding on packaging design",correct:"productprice"},{text:"Choosing to sell online vs in stores",correct:"placepromotion"},{text:"Setting a discount sale price",correct:"productprice"},{text:"Running a social media ad campaign",correct:"placepromotion"},{text:"Adding a new flavour variant",correct:"productprice"},{text:"Choosing supermarket shelf position",correct:"placepromotion"},{text:"Offering a premium vs budget price point",correct:"productprice"},{text:"Sponsoring a local sports team",correct:"placepromotion"},{text:"Deciding on product warranty length",correct:"productprice"},{text:"Selecting distribution through Asian retailers",correct:"placepromotion"}]},
+  {id:11,topic:"Marketing Strategy",title:"Target Markets & Strategy",type:"mcq_multi",icon:"🎯",codeDigit:"3",
+   instructions:"Answer all questions about marketing strategies and target markets.",
+   questions:[
+     {q:"A target market is best described as:",opts:["Every possible customer in the world","The specific group of consumers a business aims its products at","A business's competitors","The government department regulating advertising"],correct:1},
+     {q:"Market segmentation by AGE, INCOME or LOCATION is an example of:",opts:["Product placement","Demographic segmentation","Price skimming","Break-even analysis"],correct:1},
+     {q:"A business using social media influencers to reach younger customers is using which type of promotion?",opts:["Traditional print advertising",  "Digital/social media marketing","Personal selling only","Public relations crisis management"],correct:1},
+     {q:"'Price skimming' means a business:",opts:["Sets a very low price to enter a market quickly","Sets a high price initially then lowers it over time","Always matches competitor prices exactly","Gives products away for free"],correct:1}]},
+  {id:12,topic:"Managing Risk",title:"Business Risk Scenarios",type:"scenario",icon:"⚠️",codeDigit:"6",
+   instructions:"Read each business scenario and identify the BEST way the business is managing or should manage its risk.",
+   scenarios:[
+     {text:"A small bakery takes out insurance in case of fire or theft. What type of risk management is this?",options:["Risk avoidance","Risk transfer (insurance)","Risk acceptance","Ignoring the risk"],correct:1,explanation:"Insurance transfers the financial risk to an insurance company."},
+     {text:"A business diversifies by selling multiple product lines so it isn't dependent on one product's success. This is an example of:",options:["Risk diversification","Risk transfer","Tax avoidance","Market monopoly"],correct:0,explanation:"Spreading risk across multiple products is diversification."},
+     {text:"A café owner decides NOT to expand into a risky new location because the potential loss is too high. This is:",options:["Risk transfer","Risk avoidance","Risk acceptance","Speculative risk"],correct:1,explanation:"Choosing not to take the risk at all is risk avoidance."},
+     {text:"A business keeps an emergency cash reserve in case of an unexpected downturn. This best demonstrates:",options:["Risk acceptance with a financial buffer","Risk transfer","Risk elimination","Currency hedging"],correct:0,explanation:"Holding a reserve means accepting some risk while cushioning its impact."}]},
+  {id:13,topic:"Debt & Credit",title:"Understanding Debt & Borrowing",type:"taxation",icon:"💳",codeDigit:"8",
+   instructions:"Complete BOTH parts: (1) Put the steps of taking out a loan responsibly in the correct order, then (2) fill in the missing words about debt and credit.",
+   steps:["Determine how much money is actually needed and why","Compare interest rates and fees from different lenders","Check you can afford the regular repayments within your budget","Read and understand all loan terms and conditions","Apply for the loan or line of credit","Make repayments on time to avoid extra interest and fees","Pay off the debt and review your financial position"],
+   scrambled:["Apply for the loan or line of credit","Determine how much money is actually needed and why","Make repayments on time to avoid extra interest and fees","Compare interest rates and fees from different lenders","Pay off the debt and review your financial position","Check you can afford the regular repayments within your budget","Read and understand all loan terms and conditions"],
+   cloze:[
+     {before:"The cost of borrowing money, expressed as a percentage, is called the ", blank:"interest", after:" rate."},
+     {before:"A person's ", blank:"credit", after:" score reflects how reliable they are at repaying debts on time."},
+     {before:"Only paying the minimum repayment on a credit card can lead to a cycle of growing ", blank:"debt", after:" due to compounding interest."},
+     {before:"Before borrowing, it's important to create a ", blank:"budget", after:" to check repayments are affordable."},
+     {before:"Missing loan repayments can result in extra fees and damage to your ", blank:"credit", after:" rating, making future borrowing harder."}
+   ]},
+  {id:14,topic:"Scams",title:"Spot the Scam",type:"mcq_multi",icon:"🚨",codeDigit:"2",
+   instructions:"Scams cause major financial harm to individuals and businesses every year. Answer all questions correctly to identify scam warning signs.",
+   questions:[
+     {q:"Which is the BIGGEST warning sign of a scam email or text?",opts:["It addresses you by your correct full name","It creates urgency and demands money or personal details immediately","It comes from a well-known company's official website","It has no spelling errors"],correct:1},
+     {q:"A 'phishing' scam typically tries to:",opts:["Sell you a genuine discounted product","Trick you into revealing passwords or bank details via a fake website/email","Offer a legitimate investment opportunity","Provide free government services"],correct:1},
+     {q:"If you receive an unexpected call claiming to be your bank asking for your PIN, you should:",opts:["Give them the PIN to verify your identity","Hang up and call your bank directly using the number on your card",  "Provide your PIN only if they know your name","Transfer money to a 'safe' account they suggest"],correct:1},
+     {q:"An investment scam often promises:",opts:["Realistic, modest returns over a long time", "Guaranteed, unusually high returns with little or no risk","Returns only after government approval","No returns at all"],correct:1}]},
+  {id:15,topic:"Shares & the ASX",title:"Shares & the Stock Market",type:"match",icon:"📈",codeDigit:"9",
+   instructions:"Match each share market term to its correct definition. Click a term (it turns gold), then click the matching definition.",
+   pairs:[{left:"Share",right:"A unit of ownership in a company"},{left:"ASX (Australian Securities Exchange)",right:"The market where Australian shares are bought and sold"},{left:"Dividend",right:"A portion of company profit paid to shareholders"},{left:"Capital gain",right:"Profit made by selling a share for more than it was bought"},{left:"Shareholder",right:"A person or organisation that owns shares in a company"},{left:"Diversification",right:"Spreading investments across different shares to reduce risk"},{left:"Volatility",right:"How much and how quickly a share price rises and falls"},{left:"Blue-chip stock",right:"Shares in a large, well-established, financially stable company"}]},
+  {id:16,topic:"Changing Nature of Work",title:"Work in the Future",type:"future_work",icon:"🤖",codeDigit:"1",
+   instructions:"The world of work is changing fast! Technology, automation and globalisation are transforming how, where and when we work. Answer each challenge to decode the final digit.",
+   matchPairs:[
+     {scenario:"A software engineer in Perth attends a team meeting with colleagues in Tokyo and London from her home office",driver:"Digital communications & video conferencing"},
+     {scenario:"A factory that previously employed 50 workers on an assembly line now uses robotic arms controlled by AI",driver:"Automation & artificial intelligence"},
+     {scenario:"A graphic designer takes on projects from clients in 15 different countries through an online platform",driver:"The gig economy & globalisation"},
+     {scenario:"A doctor uses an app to monitor a rural patient's heart rate and consult with them remotely",driver:"Telehealth & remote services"},
+     {scenario:"A retail worker retrains as a data analyst because their checkout job was replaced by self-serve kiosks",driver:"Technological unemployment & reskilling"}
+   ],
+   drivers:["Digital communications & video conferencing","Automation & artificial intelligence","The gig economy & globalisation","Telehealth & remote services","Technological unemployment & reskilling"],
+   trueFalse:[
+     {text:"Remote work (working from home) has become more common due to improvements in digital communications technology.",answer:true},
+     {text:"Automation always creates more jobs than it destroys, so workers never need to reskill.",answer:false},
+     {text:"The gig economy gives workers more flexibility but often less job security and fewer benefits.",answer:true},
+     {text:"Globalisation and technology mean Australian businesses now compete with firms from all over the world.",answer:true}
+   ]},
+  {id:17,topic:"Final Challenge",title:"Trade Tower Boardroom Final Test",type:"final_mcq",icon:"🏢",codeDigit:"X",
+   instructions:"The FINAL TEST before entering the Trade Tower Boardroom! All 16 missions must be complete before this unlocks. Answer all 8 questions correctly — one mistake and you must try again!",
+   questions:[
+     {q:"In the 5-sector circular flow model, which sector handles a country's imports and exports?",opts:["Financial sector","Government sector","Overseas sector","Firms sector"],correct:2},
+     {q:"A transnational corporation (TNC) is BEST described as:",opts:["A small local business with one store","A company that operates in its home country only","A company headquartered in one country with operations in many others","A government-owned enterprise"],correct:2},
+     {q:"Which strategy involves a business competing by being the lowest-cost producer in its industry?",opts:["Differentiation","Niche strategy","Cost leadership","Diversification"],correct:2},
+     {q:"Removing tariffs between countries to increase trade is an example of:",opts:["Protectionism","Trade liberalisation","Currency depreciation","A trade deficit"],correct:1},
+     {q:"Which of these is the clearest warning sign of a scam?",opts:["A normal, expected bill from your electricity provider","Urgent pressure to transfer money or share personal/bank details immediately","An email from a friend you recognise","A receipt after an online purchase you made"],correct:1},
+     {q:"A dividend is:",opts:["A type of business loan","A portion of company profit paid to shareholders","A government tax on shares","The price you pay to buy a share"],correct:1},
+     {q:"Which is the BEST example of automation changing the nature of work?",opts:["An employee asking for a pay rise","A factory replacing assembly-line workers with robotic machines","A government raising the minimum wage","A business hiring more casual staff"],correct:1},
+     {q:"Aboriginal-owned tourism and art enterprises are an example of:",opts:["Government-run monopolies","Foreign direct investment by TNCs","Businesses that share culture and generate income for community/Country","Trade barriers"],correct:2}]}
+];
+
+const ANSWER_KEY = [
+  {id:1,topic:"5-Sector Circular Flow",icon:"🔄",digit:"6",answers:"Sectors: A=Households, B=Firms, C=Financial Sector, D=Government, E=Overseas Sector. Leakages: S=Savings, T=Tax, I=Imports."},
+  {id:2,topic:"Australia & Asia Trade",icon:"🚢",digit:"3",answers:"EXPORTS: Iron ore, coal, LNG, beef, wool, education services. IMPORTS: Electronics, cars, clothing, smartphones, furniture, machinery."},
+  {id:3,topic:"Tourism & the Economy",icon:"✈️",digit:"8",answers:"Q1: Increased local spending. Q2: Multiplier effect re-spending. Q3: Higher cost of living for locals. Q4: Export of services."},
+  {id:4,topic:"Global Supply Chains",icon:"📦",digit:"5",answers:"Order: 1.Raw materials mined 2.Components manufactured 3.Shipped to assembly plant 4.Phones assembled 5.Tested/packaged 6.Shipped to distribution centres 7.Distributed to retailers 8.Customer purchase."},
+  {id:5,topic:"Transnational Corporations",icon:"🌐",digit:"2",answers:"TNC=company with HQ in one country, ops in many. Outsourcing=building factories overseas. FDI benefit=tech/skills or jobs/tax revenue gained. Exploitation=low wages/poor conditions/avoiding regulations. Repatriation=profits sent home. Globalisation of brands=same brand worldwide."},
+  {id:6,topic:"The Global Economy",icon:"🌍",digit:"9",answers:"Q1: Trade liberalisation increasing exports. Q2: Increased competition due to globalisation. Q3: Currency depreciation. Q4: Protectionism (trade barrier)."},
+  {id:7,topic:"Competitive Advantage",icon:"🏆",digit:"1",answers:"Budget airline=Cost leadership. Premium phone=Differentiation. Niche bakery=Niche/focus strategy. Patented tech=Innovation advantage. Supermarket buying power=Economies of scale."},
+  {id:8,topic:"Innovation in Business",icon:"💡",digit:"4",answers:"Decoded message: INNOVATION GIVES BUSINESSES A COMPETITIVE EDGE."},
+  {id:9,topic:"Aboriginal Business Opportunities",icon:"🪃",digit:"7",answers:"Tour company=Indigenous Tourism. Native foods business=Bush Foods & Native Produce. Construction firm=Indigenous Procurement & Construction. Art centre=Aboriginal Art & Cultural Enterprises. Ranger program=Land & Sea Management Enterprises."},
+  {id:10,topic:"Marketing Mix",icon:"📣",digit:"0",answers:"PRODUCT & PRICE: packaging, discount price, new flavour, premium/budget pricing, warranty length. PLACE & PROMOTION: online vs in-store, social media ads, shelf position, sponsorship, distribution through retailers."},
+  {id:11,topic:"Marketing Strategy",icon:"🎯",digit:"3",answers:"Q1: Specific group a business aims products at. Q2: Demographic segmentation. Q3: Digital/social media marketing. Q4: Sets high price initially then lowers it."},
+  {id:12,topic:"Managing Risk",icon:"⚠️",digit:"6",answers:"Q1: Risk transfer (insurance). Q2: Risk diversification. Q3: Risk avoidance. Q4: Risk acceptance with a financial buffer."},
+  {id:13,topic:"Debt & Credit",icon:"💳",digit:"8",answers:"Order: 1.Determine amount needed 2.Compare interest rates/fees 3.Check affordability 4.Read terms/conditions 5.Apply for loan 6.Make repayments on time 7.Pay off debt and review. Cloze: interest, credit, debt, budget, credit."},
+  {id:14,topic:"Scams",icon:"🚨",digit:"2",answers:"Q1: Urgency demanding money/details. Q2: Phishing tricks you into revealing passwords/bank details. Q3: Hang up and call the bank's official number. Q4: Guaranteed unusually high returns with little/no risk."},
+  {id:15,topic:"Shares & the ASX",icon:"📈",digit:"9",answers:"Share=unit of ownership. ASX=market for buying/selling Australian shares. Dividend=profit paid to shareholders. Capital gain=profit from selling shares higher. Shareholder=owner of shares. Diversification=spreading investment risk. Volatility=speed/size of price changes. Blue-chip=large, stable, established company shares."},
+  {id:16,topic:"Changing Nature of Work",icon:"🤖",digit:"1",answers:"Match: Perth engineer=Digital comms. Factory robots=Automation & AI. Global designer=Gig economy. Remote doctor=Telehealth. Retrained worker=Technological unemployment. T/F: True, False, True, True."},
+  {id:17,topic:"Final Challenge",icon:"🏢",digit:"X",answers:"Q1: Overseas sector. Q2: HQ in one country, ops in many. Q3: Cost leadership. Q4: Trade liberalisation. Q5: Urgent pressure for money/details. Q6: Profit paid to shareholders. Q7: Replacing workers with robotic machines. Q8: Sharing culture and generating income for community/Country."}
+];
+const HINTS = {
+  1: "The two main sectors are HOUSEHOLDS (people/families) on the left and FIRMS (businesses) on the right. The FINANCIAL sector deals with savings and loans. GOVERNMENT collects taxes and spends on public services. OVERSEAS sector handles imports and exports.",
+  2: "EXPORTS are goods/services Australia SELLS to other countries (money flows IN). IMPORTS are goods/services Australia BUYS from other countries (money flows OUT). Australia exports a lot of raw materials (iron ore, coal, gas) and imports a lot of manufactured goods (electronics, cars, clothing).",
+  3: "Tourism brings DIRECT spending (hotels, food, activities) and an INDIRECT 'multiplier effect' as that money is re-spent locally, creating more jobs and income. But too much tourism (overtourism) can raise prices and strain infrastructure for locals. Money spent by international visitors counts as an export of services for Australia.",
+  4: "Think about the LOGICAL order: you can't assemble a phone before you have the components, and you can't ship it before it's made and tested. Raw materials → components → assembly → testing → shipping → retail → customer.",
+  5: "A TNC operates across many countries from one home base. FDI (foreign direct investment) can bring jobs, tax revenue, technology and skills to a host country - that's a benefit. But TNCs can also be criticised for low wages, poor conditions or avoiding stricter laws by moving overseas - that's exploitation. Profits sent back to the home country = repatriation.",
+  6: "Trade LIBERALISATION = removing barriers like tariffs, which increases trade. PROTECTIONISM = adding barriers (tariffs, quotas) to protect local industries. Currency DEPRECIATION = a currency's value falls, making exports cheaper for foreigners. Globalisation increases competition because local firms now compete with firms worldwide.",
+  7: "COST LEADERSHIP = competing on being the cheapest. DIFFERENTIATION = competing by offering something unique. NICHE/FOCUS = targeting a small, specific group of customers. INNOVATION ADVANTAGE = staying ahead with new ideas/technology. ECONOMIES OF SCALE = using large size to reduce costs per unit.",
+  8: "Work through each number using the cipher key. A=1, B=2, C=3… Z=26, and 27 = a SPACE between words. The message is about why businesses innovate. Start with number 9 → that's I. Keep going! The full decoded answer is: INNOVATION GIVES BUSINESSES A COMPETITIVE EDGE",
+  9: "Think about WHAT each Aboriginal enterprise example actually does. Sharing Country and culture with visitors = tourism. Growing/selling native plants and foods = bush foods. Winning building contracts = procurement & construction. Selling art through a community centre = art & cultural enterprises. Managing land/sea Country for income = land & sea management.",
+  10: "PRODUCT decisions are about the item itself (features, packaging, variants, warranty). PRICE decisions are about how much it costs (discounts, premium/budget pricing). PLACE decisions are about WHERE it's sold (online, in-store, which retailers). PROMOTION decisions are about HOW it's advertised (ads, sponsorships, social media).",
+  11: "A TARGET MARKET is the specific group of customers a business focuses on. SEGMENTATION by age/income/location is DEMOGRAPHIC segmentation. Using influencers and social media is DIGITAL marketing. PRICE SKIMMING means starting with a HIGH price and lowering it later (common for new tech products).",
+  12: "RISK TRANSFER = passing the risk to someone else, usually through insurance. RISK DIVERSIFICATION = spreading risk across multiple products/investments. RISK AVOIDANCE = choosing not to take the risk at all. RISK ACCEPTANCE = taking the risk but preparing a buffer (like cash reserves) in case something goes wrong.",
+  13: "Part 1: Put the loan steps in a sensible, responsible order - work out what you need BEFORE you compare lenders, and apply BEFORE you start repaying. Part 2: Use context clues for each blank - INTEREST is the cost of borrowing, CREDIT relates to your reliability as a borrower, DEBT is what's owed, and a BUDGET helps check affordability.",
+  14: "Scams almost always create URGENCY and ask for money or personal/banking details quickly. PHISHING uses fake emails/websites to steal passwords or bank info. If a 'bank' calls asking for your PIN, always hang up and call the number on your card/statement instead. Genuine investments NEVER guarantee high returns with no risk.",
+  15: "A SHARE is a small piece of ownership in a company. The ASX is WHERE shares are traded in Australia. A DIVIDEND is a profit payment to shareholders. A CAPITAL GAIN is profit from selling a share for more than you paid. DIVERSIFICATION spreads risk across many shares. VOLATILITY describes how much a price jumps around. BLUE-CHIP stocks are shares in big, stable, trusted companies.",
+  16: "Think about WHAT technology is involved in each scenario. Video calls → digital communications. Robot machines → automation/AI. Working across borders online → gig economy & globalisation. Doctor seeing patient remotely → telehealth. Losing a job to a machine then retraining → technological unemployment. For True/False: think about what has actually happened in the real world due to globalisation and technology.",
+  17: "Review key concepts: the OVERSEAS sector handles imports/exports. A TNC has its HQ in one country with operations in many others. COST LEADERSHIP means competing on being cheapest. Removing trade barriers = trade LIBERALISATION. Scams create URGENCY for money/details. A DIVIDEND is a profit payment to shareholders. AUTOMATION replaces workers with machines. Aboriginal enterprises share culture and generate community income."
+};
+
+
+
+// ---- STATE ----
+let state = {
+  screen: "intro",
+  currentTask: 0,
+  studentName: "",
+  nameInput: "",
+  completedTasks: [],
+  unlockedCode: {},
+  loadingProgress: false,
+  saveStatus: "",
+  showCode: false,
+  showTeacherLogin: false,
+  teacherAuthed: false,
+  teacherChoice: false,
+  isPreview: false,
+  pwInput: "",
+  pwError: false,
+  taskDone: false,
+  taskMsg: "",
+  taskMsgOk: false,
+  // task-specific
+  sortSelected: null,
+  sortBuckets: {},
+  sortRemaining: [],
+  multiSel: [],
+  matchSelected: null,
+  matchMatches: {},
+  mcqAnswers: {},
+  tfAnswers: {},
+  orderList: [],
+  orderSelected: null,
+  diagAnswers: {},
+  diagOpen: null,
+  cipherAnswer: null,
+  cipherInput: "",
+  scenarioAnswers: {},
+  scenarioExpls: {},
+  rankSelected: null,
+  rankMatches: {},
+  jigsawSelected: null,
+  jigsawConnected: {},
+  finalAnswers: {},
+  workSel: null,
+  workMatches: {},
+  workBonusAns: null,
+  fwSel: null,
+  fwMatches: {},
+  fwTfAnswers: {},
+  attemptCount: 0,
+  showHint: false,
+  sdGraph: 0,
+  sdAnswers: {},
+  sdTfAnswers: {},
+};
+
+// ---- GOOGLE SHEETS SYNC ----
+// Paste your Google Apps Script Web App URL below:
+const SHEET_URL = "https://script.google.com/macros/s/AKfycby7_oF1YhTJVoHmk2mLqJChkCcPcZN_m4mwJfYqMi1XunxzrdaKU3AaI8ZL-dRKWMs/exec";
+
+async function saveToSheet(name, completed, unlockedCode) {
+  if (!SHEET_URL || SHEET_URL === "YOUR_APPS_SCRIPT_URL_HERE") return;
+  showCloudToast("saving", "Saving to cloud…");
+  try {
+    await fetch(SHEET_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        action: "save",
+        name: name.trim().toLowerCase() + " [y9biz]",
+        completed: completed,
+        unlockedCode: unlockedCode
+      })
+    });
+    showCloudToast("saved", "Saved! Progress synced ☁️");
+  } catch(e) { console.warn("Save failed:", e); showCloudToast("error", "Save failed — check connection"); }
+}
+
+async function loadFromSheet(name) {
+  if (!SHEET_URL || SHEET_URL === "YOUR_APPS_SCRIPT_URL_HERE") return null;
+  try {
+    const res = await fetch(SHEET_URL + "?action=load&name=" + encodeURIComponent(name.trim().toLowerCase() + " [y9biz]"));
+    const data = await res.json();
+    return data.found ? data : null;
+  } catch(e) { console.warn("Load failed:", e); return null; }
+}
+
+function saveProgress() {
+  if (state.studentName) {
+    saveToSheet(state.studentName, state.completedTasks, state.unlockedCode);
+  }
+}
+
+function getFinalCode() {
+  return [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16].map(id => state.unlockedCode[id] || "_").join("");
+}
+
+async function startMission(name) {
+  state.studentName = name;
+  state.loadingProgress = true;
+  state.saveStatus = "";
+  render();
+  const saved = await loadFromSheet(name);
+  if (saved && saved.completed && saved.completed.length > 0) {
+    state.completedTasks = saved.completed;
+    state.unlockedCode = saved.unlockedCode || {};
+    state.saveStatus = "resumed";
+  } else {
+    state.completedTasks = [];
+    state.unlockedCode = {};
+    state.saveStatus = "new";
+  }
+  state.loadingProgress = false;
+  state.screen = "intro";
+  render();
+}
+
+function completeTask(taskId, digit) {
+  if (!state.completedTasks.includes(taskId)) {
+    state.completedTasks.push(taskId);
+    if (digit && digit !== "X") state.unlockedCode[taskId] = digit;
+    saveProgress();
+  }
+  state.taskDone = true;
+  state.taskMsg = "Correct! Code digit unlocked!";
+  state.taskMsgOk = true;
+  render();
+}
+
+function wrongAnswer() {
+  state.attemptCount++;
+  if (state.attemptCount >= 4) {
+    state.showHint = true;
+    state.taskMsg = "Not quite - but a hint is now available below! Keep trying.";
+  } else {
+    const remaining = 4 - state.attemptCount;
+    state.taskMsg = "Not quite - review your answers and try again!" + (remaining > 0 ? " (" + remaining + " attempt" + (remaining===1?"":"s") + " until hint unlocks)" : "");
+  }
+  state.taskMsgOk = false;
+  render();
+  const el = document.getElementById("task-body");
+  if (el) { el.classList.add("shake"); setTimeout(() => el.classList.remove("shake"), 400); }
+}
+
+function goToTask(idx) {
+  const t = TASKS[idx];
+  state.currentTask = idx;
+  state.taskDone = state.completedTasks.includes(t.id);
+  state.taskMsg = state.taskDone ? "You have already completed this task!" : "";
+  state.taskMsgOk = state.taskDone;
+  // reset task state
+  state.sortSelected = null;
+  state.sortRemaining = t.items ? [...t.items] : [];
+  state.sortBuckets = t.cats ? {[t.cats[0]]:[], [t.cats[1]]:[]} : {};
+  state.multiSel = [];
+  state.matchSelected = null;
+  state.matchMatches = {};
+  state.mcqAnswers = {};
+  state.tfAnswers = {};
+  state.orderList = t.type==='taxation' ? [...t.scrambled] : (t.steps ? (t.isPreordered ? [...t.steps] : shuffle([...t.steps])) : []);
+  state.orderSelected = null;
+  state.diagAnswers = {};
+  state.diagOpen = null;
+  state.cipherAnswer = null;
+  state.scenarioAnswers = {};
+  state.scenarioExpls = {};
+  state.rankSelected = null;
+  state.rankMatches = {};
+  state.jigsawSelected = null;
+  state.jigsawConnected = {};
+  state.finalAnswers = {};
+  state.taxOrderDone = false;
+  state.taxClozeSubmitted = false;
+  state.clozeAnswers = {};
+  state.attemptCount = 0;
+  state.showHint = false;
+  state.sdGraph = 0;
+  state.sdAnswers = {};
+  state.sdTfAnswers = {};
+  state.cipherInput = "";
+  state.workSel = null;
+  state.workMatches = {};
+  state.workBonusAns = null;
+  state.fwSel = null;
+  state.fwMatches = {};
+  state.fwTfAnswers = {};
+  state.screen = "task";
+  render();
+}
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+// ---- RENDER ----
+function render() {
+  const app = document.getElementById("app");
+  if (state.screen === "intro") app.innerHTML = renderIntro();
+  else if (state.screen === "hub") app.innerHTML = renderHub();
+  else if (state.screen === "task") app.innerHTML = renderTask();
+  else if (state.screen === "teacher") app.innerHTML = renderTeacher();
+  attachEvents();
+}
+
+// ---- INTRO ----
+function renderIntro() {
+  const loginModal = state.showTeacherLogin ? `
+  <div style="position:fixed;inset:0;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;z-index:100;padding:1rem">
+    <div style="background:#0d1f3c;border:1px solid #d4af37;border-radius:12px;padding:2rem;max-width:360px;width:100%;text-align:center">
+      <div style="font-size:40px;margin-bottom:0.5rem">🔒</div>
+      <h2 style="color:#d4af37;margin:0 0 0.5rem;font-size:18px">Teacher Access</h2>
+      ${!state.teacherChoice ? `
+        <p style="color:#888;font-size:13px;margin:0 0 1.5rem">Enter teacher password to continue</p>
+        <input id="pw-input" type="password" value="${state.pwInput}" placeholder="Password..."
+          style="width:100%;background:rgba(255,255,255,0.1);border:1px solid ${state.pwError?"#cc4444":"#d4af37"};border-radius:8px;padding:0.75rem;color:white;font-size:15px;text-align:center;margin-bottom:0.5rem">
+        ${state.pwError ? '<p style="color:#ff9999;font-size:12px;margin:0.25rem 0 0.5rem">Incorrect password. Try again.</p>' : ""}
+        <div style="display:flex;gap:0.75rem;margin-top:0.75rem">
+          <button id="pw-cancel" style="flex:1;background:transparent;color:#888;border:1px solid #333;border-radius:8px;padding:0.6rem;font-size:14px">Cancel</button>
+          <button id="pw-submit" style="flex:1;background:#d4af37;color:#0a1628;border:none;border-radius:8px;padding:0.6rem;font-size:14px;font-weight:bold">Enter</button>
+        </div>
+        <p style="color:#444;font-size:11px;margin-top:1.25rem">Students: this area is for your teacher only.</p>
+      ` : `
+        <p style="color:#90ee90;font-size:13px;margin-bottom:1.25rem">Password accepted! What would you like to do?</p>
+        <div style="display:flex;flex-direction:column;gap:0.75rem">
+          <button id="go-teacher-dash" style="background:#d4af37;color:#0a1628;border:none;border-radius:8px;padding:0.85rem;font-size:15px;font-weight:bold">📋 Open Teacher Dashboard</button>
+          <button id="go-preview" style="background:rgba(212,175,55,0.15);color:#d4af37;border:1px solid rgba(212,175,55,0.4);border-radius:8px;padding:0.85rem;font-size:15px;font-weight:bold">👁️ Preview Mode (skip tasks freely)</button>
+          <button id="pw-cancel2" style="background:transparent;color:#666;border:none;font-size:12px;padding:0.25rem">Cancel</button>
+        </div>
+      `}
+    </div>
+  </div>` : "";
+
+  return `
+  ${loginModal}
+  <div style="min-height:100vh;background:linear-gradient(135deg,#0a1628 0%,#1a2f4e 50%,#0d1f3c 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;font-family:Georgia,serif">
+    <div style="max-width:700px;width:100%;text-align:center">
+      <div style="font-size:72px;margin-bottom:1rem">🏢</div>
+      <div style="background:rgba(212,175,55,0.15);border:2px solid #d4af37;border-radius:12px;padding:2rem 2.5rem;margin-bottom:1.5rem">
+        <div style="color:#d4af37;font-size:11px;letter-spacing:4px;margin-bottom:0.5rem">CLASSIFIED - URGENT TRANSMISSION</div>
+        <h1 style="color:#f0e6c0;font-size:clamp(22px,4vw,32px);font-weight:bold;margin:0 0 1rem;line-height:1.3">Operation: Trade Tower</h1>
+        <p style="color:#c8d8f0;font-size:15px;line-height:1.8;margin:0 0 1rem">A major transnational corporation has locked down its boardroom on the top floor of Trade Tower ahead of a critical decision about Australia's place in the <strong style="color:#d4af37">global economy</strong>. The Global Enterprise Council needs <strong style="color:#d4af37">emerging business analysts</strong> - and fast.</p>
+        <p style="color:#c8d8f0;font-size:15px;line-height:1.8;margin:0 0 1rem">You have been identified as a top candidate. Complete <strong style="color:#d4af37">17 business and economics intelligence challenges</strong> - each correct answer unlocks one digit of the <strong style="color:#d4af37">Trade Tower Boardroom door code</strong>.</p>
+        <p style="color:#ffd700;font-size:14px;font-style:italic;margin:0">"Trade, innovation and the global economy are in your hands. Good luck, analyst."</p>
+      </div>
+      ${state.loadingProgress ? `
+        <div style="background:rgba(255,255,255,0.05);border-radius:12px;padding:2rem;margin-bottom:1rem;text-align:center">
+          <div style="font-size:36px;margin-bottom:0.75rem">⏳</div>
+          <p style="color:#d4af37;font-size:16px;margin:0">Loading your progress...</p>
+          <p style="color:#888;font-size:13px;margin:0.5rem 0 0">Checking the Trade Tower database for <strong style="color:#c8d8f0">${state.studentName}</strong></p>
+        </div>
+      ` : !state.studentName ? `
+        <div style="background:rgba(255,255,255,0.05);border-radius:12px;padding:1.5rem;margin-bottom:1rem">
+          <p style="color:#c8d8f0;margin-bottom:0.5rem">Enter your name to begin your mission:</p>
+          <p style="color:#888;font-size:12px;margin-bottom:1rem">Your progress saves automatically and works on any device.</p>
+          <input id="name-input" value="${state.nameInput}" placeholder="e.g. Jake Smith..."
+            style="background:rgba(255,255,255,0.1);border:1px solid #d4af37;border-radius:8px;padding:0.75rem 1rem;color:white;font-size:16px;width:100%;max-width:300px;text-align:center">
+          <br><button id="accept-mission" style="margin-top:1rem;background:#d4af37;color:#0a1628;border:none;border-radius:8px;padding:0.75rem 2rem;font-size:16px;font-weight:bold">Accept Mission</button>
+        </div>
+      ` : `
+        ${state.saveStatus === "resumed" ? `<div style="background:rgba(76,175,80,0.15);border:1px solid #4caf50;border-radius:8px;padding:0.75rem 1rem;margin-bottom:1rem;font-size:14px;color:#90ee90">✅ Progress loaded! You have completed ${state.completedTasks.length}/16 tasks.</div>` : ""}
+        ${state.saveStatus === "new" ? `<div style="background:rgba(212,175,55,0.1);border:1px solid rgba(212,175,55,0.3);border-radius:8px;padding:0.75rem 1rem;margin-bottom:1rem;font-size:14px;color:#d4af37">🆕 New agent detected. Starting fresh mission for <strong>${state.studentName}</strong>.</div>` : ""}
+        <p style="color:#d4af37;margin-bottom:1.5rem;font-size:16px">Welcome, Analyst <strong>${state.studentName}</strong>. Progress saves automatically across all devices.</p>
+        <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap">
+          <button id="begin-mission" style="background:#d4af37;color:#0a1628;border:none;border-radius:8px;padding:1rem 2.5rem;font-size:18px;font-weight:bold">🚀 Begin Mission</button>
+          ${state.completedTasks.length > 0 ? `<button id="resume-mission" style="background:transparent;color:#d4af37;border:2px solid #d4af37;border-radius:8px;padding:1rem 2rem;font-size:15px">Resume (${state.completedTasks.length}/16 done)</button>` : ""}
+        </div>
+      `}
+      <div style="margin-top:2rem">
+        <button id="show-teacher-login" style="background:transparent;color:#444;border:1px solid #222;border-radius:6px;padding:0.4rem 0.9rem;font-size:12px">🏫 Teacher Access</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ---- HUB ----
+function renderHub() {
+  const progress = state.completedTasks.length;
+  const allDone = progress >= 16;
+  const pct = Math.round((progress / 16) * 100);
+
+  const taskCards = TASKS.slice(0, 16).map(t => {
+    const done = state.completedTasks.includes(t.id);
+    return `<button class="task-card" data-idx="${TASKS.indexOf(t)}"
+      style="background:${done?"rgba(76,175,80,0.15)":"rgba(255,255,255,0.05)"};border:1px solid ${done?"#4caf50":"rgba(255,255,255,0.1)"};border-radius:10px;padding:1rem;text-align:left;color:white;width:100%">
+      <div style="display:flex;justify-content:space-between;margin-bottom:0.5rem">
+        <span style="font-size:22px">${t.icon}</span>
+        <span style="font-size:11px;background:${done?"#4caf50":"rgba(212,175,55,0.3)"};color:${done?"white":"#d4af37"};border-radius:4px;padding:2px 6px">${done?"Done":"#"+t.id}</span>
+      </div>
+      <div style="font-size:13px;font-weight:600;color:${done?"#90ee90":"white"};margin-bottom:2px">${t.topic}</div>
+      <div style="font-size:11px;color:#666">${t.type.replace(/_/g," ")}</div>
+    </button>`;
+  }).join("");
+
+  const t17 = TASKS[16];
+  const done17 = state.completedTasks.includes(t17.id);
+  const locked17 = !allDone && !state.isPreview;
+  const finalCard = `<button id="go-task-16" ${locked17?"disabled":""} 
+    style="background:${done17?"rgba(212,175,55,0.2)":locked17?"rgba(255,255,255,0.02)":"rgba(255,255,255,0.05)"};border:${done17?"2px solid #d4af37":locked17?"1px dashed rgba(255,255,255,0.1)":"1px solid rgba(255,255,255,0.1)"};border-radius:10px;padding:1rem;text-align:left;color:white;width:100%;grid-column:span 2;opacity:${locked17?0.4:1};cursor:${locked17?"not-allowed":"pointer"}">
+    <div style="display:flex;justify-content:space-between;margin-bottom:0.5rem">
+      <span style="font-size:22px">${t17.icon}</span>
+      <span style="font-size:11px;background:${done17?"#d4af37":"rgba(212,175,55,0.3)"};color:${done17?"#0a1628":"#d4af37"};border-radius:4px;padding:2px 6px">${done17?"COMPLETE":locked17?"LOCKED":"FINAL BOSS"}</span>
+    </div>
+    <div style="font-size:14px;font-weight:700;color:${done17?"#d4af37":"white"};margin-bottom:2px">${t17.topic}</div>
+    <div style="font-size:11px;color:#666">${locked17?"Complete all 16 tasks to unlock":"Final comprehensive test — 8 questions, no mistakes!"}</div>
+  </button>`;
+
+  const completionBanner = allDone ? `
+    <div style="background:linear-gradient(135deg,#1a3a1a,#0d2d0d);border:2px solid #4caf50;border-radius:12px;padding:1.5rem;margin-bottom:1.5rem;text-align:center">
+      <div style="font-size:48px;margin-bottom:0.5rem">🎉</div>
+      <h3 style="color:#4caf50;margin:0 0 0.5rem">ALL MISSIONS COMPLETE!</h3>
+      <p style="color:#90ee90;margin:0 0 1rem">Congratulations, Analyst ${state.studentName}! You have qualified to join the Trade Tower Boardroom!</p>
+      <button id="toggle-code" style="background:#4caf50;color:white;border:none;border-radius:8px;padding:1rem 2rem;font-size:18px;font-weight:bold">${state.showCode?"Hide":"Reveal"} Boardroom Code</button>
+      ${state.showCode ? `<div style="margin-top:1.5rem;background:rgba(0,0,0,0.5);border-radius:8px;padding:1.5rem">
+        <div style="color:#aaa;font-size:12px;letter-spacing:3px;margin-bottom:0.5rem">TRADE TOWER BOARDROOM CODE</div>
+        <div style="color:#ffd700;font-size:clamp(24px,5vw,40px);font-family:monospace;font-weight:bold;letter-spacing:6px;border:2px solid #ffd700;border-radius:8px;padding:1rem;display:inline-block">${getFinalCode()}</div>
+      </div>` : ""}
+    </div>` : "";
+
+  return `
+  <div style="min-height:100vh;background:#0d1f3c;padding:1.5rem;font-family:system-ui,sans-serif">
+    <div style="max-width:800px;margin:0 auto">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;flex-wrap:wrap;gap:0.5rem">
+        <div>
+          ${state.isPreview ? '<div style="background:rgba(212,175,55,0.2);color:#d4af37;font-size:11px;border-radius:4px;padding:2px 8px;margin-bottom:4px;display:inline-block">PREVIEW MODE - Skip any task freely</div>' : ""}
+          <div style="color:#d4af37;font-size:11px;letter-spacing:3px">TRADE TOWER MISSION CONTROL</div>
+          <h2 style="color:white;margin:0;font-size:20px">${state.isPreview ? "🔍 Teacher Preview" : "Analyst: "+state.studentName}</h2>
+        </div>
+        <div style="text-align:right">
+          <div style="color:#aaa;font-size:12px">Progress</div>
+          <div style="color:#d4af37;font-size:22px;font-weight:bold">${progress} / 16</div>
+          ${!state.isPreview ? `<div style="color:#3a7bd5;font-size:10px;margin-top:2px">☁️ Cloud sync on</div>` : ""}
+        </div>
+      </div>
+      <div style="background:rgba(255,255,255,0.05);border-radius:8px;padding:4px;margin-bottom:1.25rem">
+        <div style="background:#d4af37;height:8px;border-radius:6px;width:${pct}%;transition:width 0.5s"></div>
+      </div>
+      ${completionBanner}
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:0.65rem;margin-bottom:1.25rem">
+        ${taskCards}
+        ${finalCard}
+      </div>
+      <div style="display:flex;gap:0.75rem;flex-wrap:wrap">
+        <button id="hub-back" style="background:transparent;color:#555;border:1px solid #222;border-radius:6px;padding:0.5rem 0.9rem;font-size:12px">Briefing</button>
+        <button id="hub-teacher" style="background:transparent;color:#555;border:1px solid #222;border-radius:6px;padding:0.5rem 0.9rem;font-size:12px">🏫 Teacher</button>
+        ${!state.isPreview ? `<button id="hub-reload-progress" style="background:transparent;color:#3a7bd5;border:1px solid rgba(58,123,213,0.4);border-radius:6px;padding:0.5rem 0.9rem;font-size:12px" title="Load your saved progress from the cloud on a new device">☁️ Reload my progress</button>` : ""}
+        ${state.isPreview ? '<button id="exit-preview" style="background:rgba(212,175,55,0.1);color:#d4af37;border:1px solid rgba(212,175,55,0.3);border-radius:6px;padding:0.5rem 0.9rem;font-size:12px">Exit Preview</button>' : ""}
+      </div>
+    </div>
+  </div>`;
+}
+
+// ---- TEACHER DASHBOARD ----
+function renderTeacher() {
+  const progress = state.completedTasks.length;
+  const rows = ANSWER_KEY.map(ak => {
+    const done = state.completedTasks.includes(ak.id);
+    return `<div style="background:rgba(255,255,255,0.03);border:1px solid ${done?"rgba(76,175,80,0.3)":"rgba(255,255,255,0.08)"};border-radius:8px;padding:0.75rem 1rem;display:flex;gap:1rem;align-items:flex-start">
+      <span style="font-size:20px;flex-shrink:0">${ak.icon}</span>
+      <div style="flex:1">
+        <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.25rem">
+          <span style="color:white;font-weight:600;font-size:13px">Task ${ak.id}: ${ak.topic}</span>
+          <span style="font-size:11px;background:${done?"rgba(76,175,80,0.2)":"rgba(255,255,255,0.07)"};color:${done?"#90ee90":"#888"};border-radius:4px;padding:1px 6px">${done?"Completed":"Not done"}</span>
+          <span style="font-size:11px;color:#555">Digit: <strong style="color:#d4af37">${ak.digit==="X"?"Final":ak.digit}</strong></span>
+        </div>
+        <div style="color:#aaa;font-size:12px;line-height:1.5"><strong style="color:#c8d8f0">Answers:</strong> ${ak.answers}</div>
+      </div>
+    </div>`;
+  }).join("");
+
+  return `
+  <div style="min-height:100vh;background:#0a1628;padding:1.5rem;font-family:system-ui,sans-serif">
+    <div style="max-width:800px;margin:0 auto">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:0.5rem">
+        <div>
+          <div style="color:#d4af37;font-size:11px;letter-spacing:3px">TEACHER DASHBOARD - CONFIDENTIAL</div>
+          <h2 style="color:white;margin:0.25rem 0 0;font-size:20px">Year 9 Business Escape Room - Answer Key</h2>
+        </div>
+        <button id="teacher-back" style="background:transparent;color:#888;border:1px solid #333;border-radius:6px;padding:0.5rem 1rem;font-size:13px">Back to Hub</button>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0.75rem;margin-bottom:1.5rem">
+        ${[{l:"Total Tasks",v:"17",i:"📋"},{l:"Completed (this device)",v:String(progress),i:"✅"},{l:"Door Code (so far)",v:getFinalCode(),i:"🔐",mono:true},{l:"Active Student",v:state.studentName||"None",i:"👤"}].map((m,i)=>`
+          <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(212,175,55,0.3);border-radius:10px;padding:1rem">
+            <div style="font-size:20px;margin-bottom:0.25rem">${m.i}</div>
+            <div style="color:#888;font-size:11px;margin-bottom:0.25rem">${m.l}</div>
+            <div style="color:#d4af37;font-weight:bold;font-size:${m.mono?"14px":"16px"};font-family:${m.mono?"monospace":"inherit"};letter-spacing:${m.mono?"3px":"0"}">${m.v}</div>
+          </div>`).join("")}
+      </div>
+      <div style="background:rgba(212,175,55,0.08);border:1px solid rgba(212,175,55,0.3);border-radius:10px;padding:1rem;margin-bottom:1.5rem">
+        <div style="color:#d4af37;font-size:12px;letter-spacing:2px;margin-bottom:0.5rem">FULL TRADE TOWER CODE (Tasks 1-16)</div>
+        <div style="font-family:monospace;font-size:clamp(20px,4vw,32px);color:#ffd700;letter-spacing:8px;font-weight:bold">${getFinalCode()}</div>
+        <p style="color:#888;font-size:12px;margin:0.5rem 0 0">Share this with students who complete all 14 tasks.</p>
+      </div>
+      <h3 style="color:#d4af37;font-size:13px;letter-spacing:2px;margin:0 0 0.75rem">ANSWER KEY - ALL TASKS</h3>
+      <div style="display:flex;flex-direction:column;gap:0.5rem;margin-bottom:1.5rem">${rows}</div>
+      <div style="background:rgba(220,50,50,0.08);border:1px solid rgba(220,50,50,0.3);border-radius:10px;padding:1rem;margin-bottom:1rem">
+        <h3 style="color:#ff9999;margin:0 0 0.5rem;font-size:13px">Reset Progress</h3>
+        <p style="color:#888;font-size:12px;margin:0 0 0.75rem">Clears all progress saved on this device. Useful for a new student on a shared computer.</p>
+        <button id="reset-progress" style="background:rgba(220,50,50,0.2);color:#ff9999;border:1px solid rgba(220,50,50,0.4);border-radius:6px;padding:0.5rem 1rem;font-size:13px">Reset All Progress</button>
+      </div>
+      <button id="exit-teacher" style="background:transparent;color:#444;border:1px solid #222;border-radius:6px;padding:0.5rem 1rem;font-size:12px">Exit Teacher Mode</button>
+    </div>
+  </div>`;
+}
+
+// ---- TASK SCREEN ----
+function renderTask() {
+  const t = TASKS[state.currentTask];
+  const bgMap = {sort:"#1a2f4e",match:"#1e2a1e",mcq_multi:"#1e1a2e",truefalse:"#2e1a1a",order:"#2a2e1a",cipher:"#1a2a2e",diagram:"#1e2a2e",multiselect:"#2a1e1e",scenario:"#2a2a1e",rank:"#1e2a1e",jigsaw:"#1a1e2e",final_mcq:"#2e2a1a",work_types:"#1e2a3e",future_work:"#1e1a2e"};
+  const bg = bgMap[t.type] || "#0d1f3c";
+  const msgHtml = state.taskMsg ? `<div style="background:${state.taskMsgOk?"rgba(76,175,80,0.15)":"rgba(220,50,50,0.15)"};border:1px solid ${state.taskMsgOk?"#4caf50":"#cc4444"};border-radius:8px;padding:0.75rem 1rem;margin-bottom:1rem;color:${state.taskMsgOk?"#90ee90":"#ff9999"};font-size:14px;font-weight:500">${state.taskMsg}</div>` : "";
+
+  let bodyHtml = "";
+  if (t.type === "sort") bodyHtml = renderSort(t);
+  else if (t.type === "multiselect") bodyHtml = renderMultiselect(t);
+  else if (t.type === "match") bodyHtml = renderMatch(t);
+  else if (t.type === "mcq_multi" || t.type === "final_mcq") bodyHtml = renderMcqMulti(t);
+  else if (t.type === "truefalse") bodyHtml = renderTrueFalse(t);
+  else if (t.type === "order") bodyHtml = renderOrder(t);
+  else if (t.type === "taxation") bodyHtml = renderTaxation(t);
+  else if (t.type === "supplydemand") bodyHtml = renderSupplyDemand(t);
+  else if (t.type === "diagram") bodyHtml = renderDiagram(t);
+  else if (t.type === "cipher") bodyHtml = renderCipher(t);
+  else if (t.type === "scenario") bodyHtml = renderScenario(t);
+  else if (t.type === "rank") bodyHtml = renderRank(t);
+  else if (t.type === "jigsaw") bodyHtml = renderJigsaw(t);
+  else if (t.type === "work_types") bodyHtml = renderWorkTypes(t);
+  else if (t.type === "future_work") bodyHtml = renderFutureWork(t);
+
+  return `
+  <div style="min-height:100vh;background:${bg};padding:1.5rem;font-family:system-ui,sans-serif">
+    <div style="max-width:780px;margin:0 auto">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem">
+        <button id="task-back" style="background:transparent;color:#888;border:1px solid #333;border-radius:6px;padding:0.4rem 0.8rem;font-size:13px">Mission Hub</button>
+        <div style="display:flex;gap:0.5rem;align-items:center">
+          ${state.isPreview && !state.taskDone ? `<button id="task-skip" style="background:rgba(212,175,55,0.15);color:#d4af37;border:1px solid rgba(212,175,55,0.4);border-radius:6px;padding:0.4rem 0.8rem;font-size:12px">Skip (Preview)</button>` : ""}
+          <div style="color:#d4af37;font-size:13px">Task ${t.id} - ${t.topic}</div>
+        </div>
+      </div>
+      <div style="background:rgba(255,255,255,0.05);border:1px solid ${state.taskDone?"#4caf50":"rgba(212,175,55,0.4)"};border-radius:12px;padding:1.5rem;margin-bottom:1rem">
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem">
+          <span style="font-size:32px">${t.icon}</span>
+          <div>
+            <h2 style="color:white;margin:0;font-size:18px">${t.title}</h2>
+            <div style="color:#d4af37;font-size:12px;margin-top:2px">${t.type.replace(/_/g," ").toUpperCase()}</div>
+          </div>
+        </div>
+        <p style="color:#c8d8f0;margin:0;font-size:14px;line-height:1.6">${t.instructions}</p>
+      </div>
+      ${msgHtml}
+      ${!state.taskDone ? renderHintPanel(t.id) : ""}
+      <div id="task-body">${bodyHtml}</div>
+      ${state.taskDone ? `<div style="text-align:center;margin-top:1.5rem"><button id="task-done-back" style="background:#d4af37;color:#0a1628;border:none;border-radius:8px;padding:1rem 2rem;font-size:16px;font-weight:bold">Return to Mission Hub</button></div>` : ""}
+    </div>
+  </div>`;
+}
+
+function renderSort(t) {
+  const chips = state.sortRemaining.map((item,i) =>
+    `<button class="sort-chip" data-i="${i}" style="background:${state.sortSelected===i?"#d4af37":"rgba(255,255,255,0.1)"};color:${state.sortSelected===i?"#0a1628":"white"};border:1px solid ${state.sortSelected===i?"#d4af37":"rgba(255,255,255,0.2)"};border-radius:20px;padding:0.35rem 0.85rem;font-size:13px;font-weight:${state.sortSelected===i?"bold":"normal"}">${item.text}</button>`
+  ).join("");
+
+  const buckets = t.cats.map((cat,ci) => {
+    const items = state.sortBuckets[cat] || [];
+    const pills = items.map((item,ii) => {
+      const correct = item.correct === cat;
+      const col = state.taskDone ? (correct?"rgba(76,175,80,0.3)":"rgba(220,50,50,0.3)") : "rgba(255,255,255,0.1)";
+      const bc = state.taskDone ? (correct?"#4caf50":"#cc4444") : "rgba(255,255,255,0.2)";
+      const tc = state.taskDone ? (correct?"#90ee90":"#ff9999") : "white";
+      return `<button class="sort-remove" data-cat="${cat}" data-ii="${ii}" style="background:${col};color:${tc};border:1px solid ${bc};border-radius:14px;padding:0.3rem 0.65rem;font-size:12px">${item.text}${state.taskDone?(correct?" ✓":" ✗"):""}</button>`;
+    }).join("");
+    return `<div class="sort-bucket" data-cat="${cat}" style="background:${state.sortSelected!==null?"rgba(212,175,55,0.05)":"rgba(255,255,255,0.03)"};border:2px ${state.sortSelected!==null?"dashed":"solid"} ${state.sortSelected!==null?"#d4af37":"rgba(255,255,255,0.1)"};border-radius:10px;padding:1rem;min-height:130px;cursor:${state.sortSelected!==null?"pointer":"default"}">
+      <div style="color:#d4af37;font-weight:bold;font-size:14px;margin-bottom:0.75rem;text-align:center">${t.labels[ci]}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:0.35rem">${pills}</div>
+    </div>`;
+  }).join("");
+
+  const hint = state.sortSelected !== null ? `<p style="color:#d4af37;font-size:13px;text-align:center;margin-bottom:0.5rem">Click a bucket to place "${state.sortRemaining[state.sortSelected].text}"</p>` : "";
+  const allPlaced = state.sortRemaining.length === 0;
+
+  return `
+    <div style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:1.25rem;padding:1rem;background:rgba(255,255,255,0.05);border-radius:8px;min-height:56px;align-items:center">
+      ${chips || '<p style="color:#888;font-size:14px;margin:0 auto">All items sorted!</p>'}
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem">${buckets}</div>
+    ${hint}
+    ${!state.taskDone ? `<button id="sort-check" ${!allPlaced?"disabled":""} style="background:${allPlaced?"#d4af37":"#333"};color:${allPlaced?"#0a1628":"#666"};border:none;border-radius:8px;padding:0.75rem 2rem;font-size:15px;font-weight:bold;display:block;margin:0 auto;cursor:${allPlaced?"pointer":"not-allowed"}">Check Answers</button>` : ""}`;
+}
+
+function renderMultiselect(t) {
+  const opts = t.options.map((opt,i) => {
+    const sel = state.multiSel.includes(i);
+    const bg = state.taskDone ? (opt.correct?"rgba(76,175,80,0.2)":sel?"rgba(220,50,50,0.2)":"rgba(255,255,255,0.03)") : sel?"rgba(212,175,55,0.2)":"rgba(255,255,255,0.05)";
+    const bc = state.taskDone ? (opt.correct?"#4caf50":sel?"#cc4444":"rgba(255,255,255,0.1)") : sel?"#d4af37":"rgba(255,255,255,0.1)";
+    const tc = state.taskDone ? (opt.correct?"#90ee90":sel?"#ff9999":"#666") : sel?"#d4af37":"white";
+    const icon = state.taskDone ? (opt.correct?"✅":sel?"❌":"⬜") : sel?"☑":"☐";
+    return `<button class="multi-opt" data-i="${i}" style="background:${bg};border:1px solid ${bc};border-radius:8px;padding:0.75rem 1rem;text-align:left;color:${tc};font-size:14px;display:flex;align-items:center;gap:0.5rem;cursor:${state.taskDone?"default":"pointer"}">${icon} ${opt.text}</button>`;
+  }).join("");
+  return `
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:0.5rem;margin-bottom:1rem">${opts}</div>
+    ${!state.taskDone ? `<button id="multi-check" style="background:#d4af37;color:#0a1628;border:none;border-radius:8px;padding:0.75rem 2rem;font-size:15px;font-weight:bold;display:block;margin:0 auto">Check Answers</button>` : ""}`;
+}
+
+function renderMatch(t) {
+  const rights = [...new Set(t.pairs.map(p=>p.right))];
+  const leftItems = t.pairs.map(p=>p.left);
+  const leftBtns = leftItems.map((left,i) => {
+    const matched = state.matchMatches[left];
+    const pair = t.pairs.find(p=>p.left===left);
+    const isCorrect = state.taskDone && matched === pair.right;
+    const isWrong = state.taskDone && matched && matched !== pair.right;
+    const bg = state.matchSelected===left?"rgba(212,175,55,0.2)":isCorrect?"rgba(76,175,80,0.15)":isWrong?"rgba(220,50,50,0.15)":"rgba(255,255,255,0.05)";
+    const bc = state.matchSelected===left?"#d4af37":isCorrect?"#4caf50":isWrong?"#cc4444":"rgba(255,255,255,0.15)";
+    return `<div style="margin-bottom:0.5rem">
+      <button class="match-left" data-left="${left}" style="width:100%;background:${bg};border:1px solid ${bc};border-radius:8px;padding:0.6rem 0.8rem;color:white;font-size:13px;text-align:left;cursor:pointer">${left}</button>
+      ${matched?`<div style="font-size:11px;color:#888;margin-top:2px;padding-left:4px">matched: ${matched}</div>`:""}
+    </div>`;
+  }).join("");
+  const rightBtns = rights.map(r => `
+    <button class="match-right" data-right="${r}" style="display:block;width:100%;margin-bottom:0.5rem;background:${state.matchSelected?"rgba(212,175,55,0.1)":"rgba(255,255,255,0.05)"};border:1px solid ${state.matchSelected?"#d4af37":"rgba(255,255,255,0.15)"};border-radius:8px;padding:0.6rem 0.8rem;color:${state.matchSelected?"#d4af37":"white"};font-size:13px;text-align:left;font-weight:600;cursor:${state.matchSelected?"pointer":"default"}">${r}</button>`
+  ).join("");
+  const allMatched = Object.keys(state.matchMatches).length >= leftItems.length;
+  return `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1rem">
+      <div><div style="color:#d4af37;font-size:12px;letter-spacing:2px;margin-bottom:0.75rem">EXAMPLES</div>${leftBtns}</div>
+      <div><div style="color:#d4af37;font-size:12px;letter-spacing:2px;margin-bottom:0.75rem">FACTORS</div>${rightBtns}</div>
+    </div>
+    ${state.matchSelected?`<p style="color:#d4af37;font-size:13px;text-align:center;margin-bottom:0.75rem">Now click the matching factor for: "${state.matchSelected}"</p>`:""}
+    ${!state.taskDone?`<button id="match-check" ${!allMatched?"disabled":""} style="background:${allMatched?"#d4af37":"#333"};color:${allMatched?"#0a1628":"#666"};border:none;border-radius:8px;padding:0.75rem 2rem;font-size:15px;font-weight:bold;display:block;margin:0 auto;cursor:${allMatched?"pointer":"not-allowed"}">Check Matches</button>`:""}`;
+}
+
+function renderMcqMulti(t) {
+  const isFinal = t.type === "final_mcq";
+  const questions = t.questions.map((q,qi) => {
+    const opts = q.opts.map((opt,ai) => {
+      const sel = state[isFinal?"finalAnswers":"mcqAnswers"][qi] === ai;
+      const bg = state.taskDone?(ai===q.correct?"rgba(76,175,80,0.2)":sel?"rgba(220,50,50,0.2)":"rgba(255,255,255,0.03)"):sel?"rgba(212,175,55,0.2)":"rgba(255,255,255,0.05)";
+      const bc = state.taskDone?(ai===q.correct?"#4caf50":sel?"#cc4444":"rgba(255,255,255,0.1)"):sel?"#d4af37":"rgba(255,255,255,0.1)";
+      const tc = state.taskDone?(ai===q.correct?"#90ee90":sel?"#ff9999":"#777"):sel?"#d4af37":"white";
+      return `<button class="mcq-opt" data-qi="${qi}" data-ai="${ai}" data-final="${isFinal?1:0}" style="background:${bg};border:1px solid ${bc};border-radius:6px;padding:0.5rem 0.75rem;font-size:13px;text-align:left;color:${tc};cursor:${state.taskDone?"default":"pointer"}">${String.fromCharCode(65+ai)}. ${opt}</button>`;
+    }).join("");
+    return `<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:1rem;margin-bottom:0.75rem">
+      <p style="color:#c8d8f0;margin:0 0 0.75rem;font-size:14px;font-weight:500">${qi+1}. ${q.q}</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.4rem">${opts}</div>
+    </div>`;
+  }).join("");
+  const ansObj = isFinal ? state.finalAnswers : state.mcqAnswers;
+  const allAns = Object.keys(ansObj).length >= t.questions.length;
+  return `
+    ${isFinal?`<div style="background:rgba(212,175,55,0.1);border:1px solid rgba(212,175,55,0.3);border-radius:8px;padding:0.75rem 1rem;margin-bottom:1rem"><p style="color:#d4af37;margin:0;font-size:13px;font-style:italic">⚠️ Answer all 8 questions correctly to unlock the Trade Tower Boardroom! One wrong answer and you must try again.</p></div>`:""}
+    ${questions}
+    ${!state.taskDone?`<button id="mcq-check" data-final="${isFinal?1:0}" ${!allAns?"disabled":""} style="background:${allAns?"#d4af37":"#333"};color:${allAns?"#0a1628":"#666"};border:none;border-radius:8px;padding:0.75rem 2rem;font-size:15px;font-weight:bold;display:block;margin:0 auto;cursor:${allAns?"pointer":"not-allowed"}">${isFinal?"Submit Final Test":"Submit Answers"}</button>`:""}`;
+}
+
+function renderTrueFalse(t) {
+  const rows = t.statements.map((s,i) => {
+    const ans = state.tfAnswers[i];
+    const trueBg = ans===true?(state.taskDone?(s.answer?"rgba(76,175,80,0.3)":"rgba(220,50,50,0.3)"):"rgba(76,200,76,0.2)"):"rgba(255,255,255,0.05)";
+    const falseBg = ans===false?(state.taskDone?(s.answer===false?"rgba(76,175,80,0.3)":"rgba(220,50,50,0.3)"):"rgba(220,50,50,0.2)"):"rgba(255,255,255,0.05)";
+    return `<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:0.9rem 1rem;margin-bottom:0.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
+      <p style="flex:1;color:#c8d8f0;margin:0;font-size:14px;min-width:200px">${i+1}. ${s.text}</p>
+      <div style="display:flex;gap:0.5rem">
+        <button class="tf-btn" data-i="${i}" data-val="true" style="background:${trueBg};border:1px solid ${ans===true?(s.answer?"#4caf50":"#cc4444"):"rgba(255,255,255,0.15)"};border-radius:6px;padding:0.4rem 0.9rem;font-size:13px;font-weight:600;color:${ans===true?"white":"#888"};cursor:${state.taskDone?"default":"pointer"};min-width:58px">TRUE</button>
+        <button class="tf-btn" data-i="${i}" data-val="false" style="background:${falseBg};border:1px solid ${ans===false?(s.answer===false?"#4caf50":"#cc4444"):"rgba(255,255,255,0.15)"};border-radius:6px;padding:0.4rem 0.9rem;font-size:13px;font-weight:600;color:${ans===false?"white":"#888"};cursor:${state.taskDone?"default":"pointer"};min-width:58px">FALSE</button>
+      </div>
+    </div>`;
+  }).join("");
+  const allAns = Object.keys(state.tfAnswers).length >= t.statements.length;
+  return `${rows}${!state.taskDone?`<button id="tf-check" ${!allAns?"disabled":""} style="background:${allAns?"#d4af37":"#333"};color:${allAns?"#0a1628":"#666"};border:none;border-radius:8px;padding:0.75rem 2rem;font-size:15px;font-weight:bold;display:block;margin:0.75rem auto 0;cursor:${allAns?"pointer":"not-allowed"}">Check Answers</button>`:""}`;
+}
+
+function renderOrder(t) {
+  const rows = state.orderList.map((step,i) => {
+    const correct = state.taskDone && t.steps[i]===step;
+    const wrong = state.taskDone && t.steps[i]!==step;
+    const sel = state.orderSelected === i;
+    return `<div class="order-item" data-i="${i}" style="display:flex;align-items:center;gap:0.75rem;background:${wrong?"rgba(220,50,50,0.1)":correct?"rgba(76,175,80,0.15)":sel?"rgba(212,175,55,0.2)":"rgba(255,255,255,0.05)"};border:1px solid ${wrong?"#cc4444":correct?"#4caf50":sel?"#d4af37":"rgba(255,255,255,0.1)"};border-radius:8px;padding:0.75rem;cursor:${t.isPreordered||state.taskDone?"default":"pointer"};margin-bottom:0.5rem">
+      <div style="background:${sel?"#d4af37":"rgba(255,255,255,0.1)"};color:${sel?"#0a1628":"#888"};border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;font-weight:bold">${i+1}</div>
+      <span style="color:${wrong?"#ff9999":correct?"#90ee90":sel?"#d4af37":"white"};font-size:14px">${step}</span>
+    </div>`;
+  }).join("");
+  return `
+    ${t.isPreordered&&!state.taskDone?`<div style="background:rgba(212,175,55,0.1);border:1px solid rgba(212,175,55,0.3);border-radius:8px;padding:0.75rem;margin-bottom:1rem"><p style="color:#d4af37;margin:0;font-size:13px">Study this table carefully, then click Confirm Order to show you understand!</p></div>`:""}
+    ${!t.isPreordered&&!state.taskDone?`<p style="color:#888;font-size:13px;margin-bottom:0.75rem">Click an item to select it (turns gold), then click another to swap positions.</p>`:""}
+    ${rows}
+    ${!state.taskDone?`<button id="order-check" style="background:#d4af37;color:#0a1628;border:none;border-radius:8px;padding:0.75rem 2rem;font-size:15px;font-weight:bold;display:block;margin:0 auto;cursor:pointer">${t.isPreordered?"Confirm Order":"Check Order"}</button>`:""}`;
+}
+
+function renderDiagram(t) {
+  const answers = state.diagAnswers;
+  const done = state.taskDone;
+
+  // The 8 items students must label: 5 sectors + 3 leakages
+  const sectors = [
+    {id:"A", label:"Households", x:30,  y:120, w:150, h:55, color:"#7a2020"},
+    {id:"B", label:"Firms",      x:620, y:120, w:150, h:55, color:"#1a3a5c"},
+    {id:"C", label:"Finance",    x:310, y:230, w:180, h:55, color:"#5a4a10"},
+    {id:"D", label:"Government", x:310, y:320, w:180, h:55, color:"#5a4a10"},
+    {id:"E", label:"Overseas",   x:310, y:410, w:180, h:55, color:"#5a4a10"},
+    // Leakage labels on left spine
+    {id:"S", label:"Savings",    x:10,  y:260, w:90,  h:35, color:"#5a2a2a", isLabel:true},
+    {id:"T", label:"Tax",        x:10,  y:345, w:90,  h:35, color:"#5a2a2a", isLabel:true},
+    {id:"I", label:"Imports",    x:10,  y:430, w:90,  h:35, color:"#5a2a2a", isLabel:true},
+  ];
+
+  const rects = sectors.map(s => {
+    const answered = answers[s.id];
+    const correct = done && answered === s.label;
+    const wrong = done && answered && answered !== s.label;
+    const fill = wrong?"rgba(220,50,50,0.4)":correct?"rgba(76,175,80,0.4)":answered?"rgba(212,175,55,0.25)":"rgba(26,58,92,0.85)";
+    const stroke = wrong?"#cc4444":correct?"#4caf50":answered?"#d4af37":"#4a7a9b";
+    const fontSz = s.isLabel ? "11" : "12";
+    return `<g class="diag-box" data-id="${s.id}" style="cursor:${!done?"pointer":"default"}">
+      <rect x="${s.x}" y="${s.y}" width="${s.w}" height="${s.h}" rx="4" fill="${fill}" stroke="${stroke}" stroke-width="2"/>
+      <text x="${s.x+s.w/2}" y="${s.y+22}" fill="${answered?"#ffd700":"#c8d8f0"}" font-size="${fontSz}" text-anchor="middle" font-weight="bold">${answered||"?"}</text>
+      ${done?`<text x="${s.x+s.w/2}" y="${s.y+33}" fill="${correct?"#4caf50":"#cc4444"}" font-size="8" text-anchor="middle">${correct?"✓":s.label}</text>`:""}
+    </g>`;
+  }).join("");
+
+  const arrows = `
+    <defs>
+      <marker id="ah" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#d4af37"/></marker>
+      <marker id="ar" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#ff9999"/></marker>
+      <marker id="ag" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#90ee90"/></marker>
+    </defs>
+
+    <!-- INNER LOOP: Households <-> Firms (gold) -->
+    <line x1="180" y1="138" x2="620" y2="138" stroke="#d4af37" stroke-width="2" marker-end="url(#ah)"/>
+    <text x="400" y="130" fill="#d4af37" font-size="10" text-anchor="middle" font-weight="bold">Consumption</text>
+
+    <line x1="620" y1="158" x2="180" y2="158" stroke="#d4af37" stroke-width="2" marker-end="url(#ah)"/>
+    <text x="400" y="172" fill="#d4af37" font-size="10" text-anchor="middle" font-weight="bold">Income</text>
+
+    <path d="M 695 120 Q 400 60 105 120" stroke="#d4af37" stroke-width="1.5" fill="none" marker-end="url(#ah)"/>
+    <text x="400" y="72" fill="#d4af37" font-size="10" text-anchor="middle">Goods &amp; Services</text>
+
+    <path d="M 180 172 Q 400 210 620 172" stroke="#aaa" stroke-width="1.5" fill="none" stroke-dasharray="5,3" marker-end="url(#ah)"/>
+    <text x="400" y="206" fill="#aaa" font-size="10" text-anchor="middle">Factors of Production</text>
+
+    <!-- LEAKAGES (red, left side) -->
+    <line x1="105" y1="165" x2="105" y2="462" stroke="#ff9999" stroke-width="1.5"/>
+
+    <!-- Savings to Finance -->
+    <line x1="105" y1="257" x2="310" y2="257" stroke="#ff9999" stroke-width="1.5" marker-end="url(#ar)"/>
+
+    <!-- Tax to Government -->
+    <line x1="105" y1="347" x2="310" y2="347" stroke="#ff9999" stroke-width="1.5" marker-end="url(#ar)"/>
+
+    <!-- Imports to Overseas -->
+    <line x1="105" y1="437" x2="310" y2="437" stroke="#ff9999" stroke-width="1.5" marker-end="url(#ar)"/>
+
+    <!-- INJECTIONS (green, right side) -->
+    <line x1="695" y1="175" x2="745" y2="175" stroke="#90ee90" stroke-width="1" stroke-dasharray="2,2"/>
+
+    <!-- Investment from Finance -->
+    <line x1="490" y1="257" x2="720" y2="257" stroke="#90ee90" stroke-width="1.5"/>
+    <line x1="720" y1="257" x2="720" y2="175" stroke="#90ee90" stroke-width="1.5" marker-end="url(#ag)"/>
+    <text x="590" y="248" fill="#90ee90" font-size="10" text-anchor="middle">Investment</text>
+
+    <!-- Govt Spending from Government -->
+    <line x1="490" y1="347" x2="740" y2="347" stroke="#90ee90" stroke-width="1.5"/>
+    <line x1="740" y1="347" x2="740" y2="175" stroke="#90ee90" stroke-width="1.5" marker-end="url(#ag)"/>
+    <text x="615" y="338" fill="#90ee90" font-size="10" text-anchor="middle">Govt Spending</text>
+
+    <!-- Exports from Overseas -->
+    <line x1="490" y1="437" x2="760" y2="437" stroke="#90ee90" stroke-width="1.5"/>
+    <line x1="760" y1="437" x2="760" y2="175" stroke="#90ee90" stroke-width="1.5" marker-end="url(#ag)"/>
+    <text x="625" y="430" fill="#90ee90" font-size="10" text-anchor="middle">Exports</text>
+
+    <!-- Labels: Leakage / Injection -->
+    <text x="55" y="50" fill="#ff9999" font-size="13" font-weight="bold" text-anchor="middle">LEAKAGE</text>
+    <text x="745" y="50" fill="#90ee90" font-size="13" font-weight="bold" text-anchor="middle">INJECTION</text>
+  `;
+
+  const dropdownHtml = state.diagOpen ? (() => {
+    const used = Object.values(state.diagAnswers);
+    const opts = t.labelOptions.filter(l => !used.includes(l) || state.diagAnswers[state.diagOpen]===l).map(l =>
+      `<button class="diag-opt" data-label="${l}" style="background:rgba(212,175,55,0.15);border:1px solid #d4af37;border-radius:6px;padding:0.5rem 1rem;color:#d4af37;font-size:13px;cursor:pointer">${l}</button>`
+    ).join("");
+    return `<div style="background:rgba(0,0,0,0.9);border:1px solid #d4af37;border-radius:10px;padding:1rem;margin-bottom:1rem">
+      <p style="color:#d4af37;margin:0 0 0.75rem;font-size:14px;font-weight:600">Select the label for ${state.diagOpen}:</p>
+      <div style="display:flex;flex-wrap:wrap;gap:0.5rem">${opts}</div>
+      <button id="diag-cancel" style="margin-top:0.5rem;background:transparent;border:none;color:#666;cursor:pointer;font-size:12px">Cancel</button>
+    </div>`;
+  })() : "";
+
+  const allAnswered = Object.keys(state.diagAnswers).length >= t.blanks.length;
+
+  const legend = `<div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:0.75rem;font-size:12px">
+    <span style="color:#d4af37">■ Inner flow (consumption/income)</span>
+    <span style="color:#ff9999">■ Leakages (savings/tax/imports)</span>
+    <span style="color:#90ee90">■ Injections (investment/govt/exports)</span>
+  </div>`;
+
+  return `
+    <p style="color:#888;font-size:13px;margin-bottom:0.5rem">Label all 5 sectors (A-E) AND the 3 leakage flows (S, T, I) by clicking each blank.</p>
+    ${legend}
+    <div style="position:relative;width:100%;padding-bottom:68%;margin-bottom:1rem">
+      <svg viewBox="0 0 800 500" style="position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.35);border-radius:10px;border:1px solid rgba(255,255,255,0.1)">
+        ${arrows}
+        ${rects}
+      </svg>
+    </div>
+    ${dropdownHtml}
+    ${!done ? `
+      <div style="display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap">
+        <button id="diag-check" ${!allAnswered?"disabled":""} style="background:${allAnswered?"#d4af37":"#333"};color:${allAnswered?"#0a1628":"#666"};border:none;border-radius:8px;padding:0.75rem 2rem;font-size:15px;font-weight:bold;cursor:${allAnswered?"pointer":"not-allowed"}">Check Diagram</button>
+        <button id="diag-retry" style="background:rgba(255,255,255,0.08);color:#aaa;border:1px solid #444;border-radius:8px;padding:0.75rem 1.5rem;font-size:14px;cursor:pointer">Reset Labels</button>
+      </div>` : `
+      <div style="text-align:center">
+        <button id="diag-retry" style="background:rgba(255,255,255,0.08);color:#aaa;border:1px solid #444;border-radius:8px;padding:0.75rem 1.5rem;font-size:14px;cursor:pointer;margin-top:0.5rem">Try Again</button>
+      </div>`}`;
+}
+
+function renderCipher(t) {
+  const keyHtml = Object.entries(t.cipherKey).map(([num,letter]) =>
+    `<div style="background:rgba(212,175,55,0.1);border:1px solid rgba(212,175,55,0.3);border-radius:4px;padding:3px 7px;font-size:12px;color:#d4af37;min-width:32px;text-align:center"><div style="font-size:10px;color:#888">${num}</div><div style="font-weight:bold">${letter}</div></div>`
+  ).join("");
+
+  const userInput = state.cipherInput || "";
+  const normalised = userInput.trim().toUpperCase().replace(/\s+/g," ");
+  const isCorrect = state.taskDone;
+
+  return `
+    <div style="background:rgba(0,0,0,0.4);border:1px solid rgba(212,175,55,0.3);border-radius:10px;padding:1.25rem;margin-bottom:1rem;font-family:monospace">
+      <div style="color:#d4af37;font-size:11px;letter-spacing:3px;margin-bottom:0.75rem">CIPHER KEY (A=1, B=2 ... Z=26, Space=27):</div>
+      <div style="display:flex;flex-wrap:wrap;gap:0.4rem;margin-bottom:1rem">${keyHtml}</div>
+      <div style="color:#888;font-size:12px;margin-bottom:0.5rem">ENCODED MESSAGE — decode each number to find the hidden economic principle:</div>
+      <p style="color:#c8d8f0;font-size:14px;letter-spacing:2px;word-break:break-all;margin:0;line-height:2">${t.encoded.join(" - ")}</p>
+    </div>
+    <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:1rem;margin-bottom:1rem">
+      <p style="color:#d4af37;font-size:14px;font-weight:600;margin:0 0 0.75rem">📝 Type your decoded message below:</p>
+      <p style="color:#888;font-size:12px;margin:0 0 0.75rem">Work through each number carefully. Include spaces. CAPITALS or lowercase are both fine.</p>
+      <textarea id="cipher-input" placeholder="Type the decoded message here..." ${isCorrect?"readonly":""}
+        style="width:100%;background:${isCorrect?"rgba(76,175,80,0.15)":"rgba(255,255,255,0.07)"};border:2px solid ${isCorrect?"#4caf50":"#d4af37"};border-radius:8px;padding:0.75rem;color:${isCorrect?"#90ee90":"white"};font-size:15px;font-family:monospace;letter-spacing:1px;resize:vertical;min-height:60px">${userInput}</textarea>
+      ${isCorrect ? `<p style="color:#90ee90;font-size:14px;margin:0.75rem 0 0">✅ Correct! The economic problem is: <strong>${t.displayAnswer}</strong></p>` : ""}
+    </div>
+    ${!isCorrect ? `<button id="cipher-check" style="background:${userInput.trim().length>=5?"#d4af37":"#333"};color:${userInput.trim().length>=5?"#0a1628":"#666"};border:none;border-radius:8px;padding:0.75rem 2rem;font-size:15px;font-weight:bold;display:block;margin:0 auto;cursor:${userInput.trim().length>=5?"pointer":"not-allowed"}" ${userInput.trim().length<5?"disabled":""}>Submit Decoded Message</button>`:""}`;
+}
+
+function renderScenario(t) {
+  const scenarios = t.scenarios.map((s,i) => {
+    const opts = s.options.map((opt,ai) => {
+      const sel = state.scenarioAnswers[i] === ai;
+      const bg = state.taskDone?(ai===s.correct?"rgba(76,175,80,0.2)":sel?"rgba(220,50,50,0.2)":"rgba(255,255,255,0.03)"):sel?"rgba(212,175,55,0.15)":"rgba(255,255,255,0.05)";
+      const bc = state.taskDone?(ai===s.correct?"#4caf50":sel?"#cc4444":"rgba(255,255,255,0.1)"):sel?"#d4af37":"rgba(255,255,255,0.1)";
+      return `<button class="scenario-opt" data-i="${i}" data-ai="${ai}" style="background:${bg};border:1px solid ${bc};border-radius:6px;padding:0.5rem;color:white;font-size:13px;text-align:left;cursor:${state.taskDone?"default":"pointer"}">${opt}</button>`;
+    }).join("");
+    const expl = state.scenarioExpls[i] ? `<div style="background:rgba(212,175,55,0.1);border-radius:6px;padding:0.5rem 0.75rem;margin-top:0.5rem"><p style="color:#d4af37;margin:0;font-size:12px">Hint: ${state.scenarioExpls[i]}</p></div>` : "";
+    return `<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:1rem;margin-bottom:0.75rem">
+      <div style="display:flex;gap:0.5rem;margin-bottom:0.75rem;align-items:flex-start">
+        <div style="background:rgba(212,175,55,0.2);color:#d4af37;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;font-weight:bold">${i+1}</div>
+        <p style="color:#c8d8f0;margin:0;font-size:14px;line-height:1.6">${s.text}</p>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.4rem">${opts}</div>
+      ${expl}
+    </div>`;
+  }).join("");
+  const allAns = Object.keys(state.scenarioAnswers).length >= t.scenarios.length;
+  return `${scenarios}${!state.taskDone?`<button id="scenario-check" ${!allAns?"disabled":""} style="background:${allAns?"#d4af37":"#333"};color:${allAns?"#0a1628":"#666"};border:none;border-radius:8px;padding:0.75rem 2rem;font-size:15px;font-weight:bold;display:block;margin:0 auto;cursor:${allAns?"pointer":"not-allowed"}">Check Answers</button>`:""}`;
+}
+
+function renderTaxation(t) {
+  // Part 1: scrambled order
+  const orderRows = state.orderList.map((step,i) => {
+    const correct = state.taskDone && t.steps[i]===step;
+    const wrong = state.taskDone && t.steps[i]!==step;
+    const sel = state.orderSelected === i;
+    return `<div class="order-item" data-i="${i}" style="display:flex;align-items:center;gap:0.75rem;background:${wrong?"rgba(220,50,50,0.1)":correct?"rgba(76,175,80,0.15)":sel?"rgba(212,175,55,0.2)":"rgba(255,255,255,0.05)"};border:1px solid ${wrong?"#cc4444":correct?"#4caf50":sel?"#d4af37":"rgba(255,255,255,0.1)"};border-radius:8px;padding:0.7rem;cursor:${state.taxOrderDone?"default":"pointer"};margin-bottom:0.4rem">
+      <div style="background:${sel?"#d4af37":"rgba(255,255,255,0.1)"};color:${sel?"#0a1628":"#888"};border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;font-weight:bold">${i+1}</div>
+      <span style="color:${wrong?"#ff9999":correct?"#90ee90":sel?"#d4af37":"white"};font-size:13px">${step}</span>
+    </div>`;
+  }).join("");
+
+  // Part 2: cloze
+  const clozeRows = t.cloze.map((c,i) => {
+    const val = (state.clozeAnswers||{})[i] || "";
+    const submitted = state.taxClozeSubmitted;
+    const correct = submitted && val.trim().toLowerCase() === c.blank.toLowerCase();
+    const wrong = submitted && val.trim().toLowerCase() !== c.blank.toLowerCase();
+    return `<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:0.75rem 1rem;margin-bottom:0.5rem;font-size:14px;line-height:1.8;color:#c8d8f0">
+      ${i+1}. ${c.before}<input class="cloze-input" data-i="${i}" value="${val}" placeholder="___________"
+        style="background:${correct?"rgba(76,175,80,0.2)":wrong?"rgba(220,50,50,0.2)":"rgba(212,175,55,0.1)"};border:1px solid ${correct?"#4caf50":wrong?"#cc4444":"#d4af37"};border-radius:4px;padding:2px 8px;color:${correct?"#90ee90":wrong?"#ff9999":"#ffd700"};font-size:14px;width:140px;text-align:center"
+        ${submitted?"readonly":""}>${c.after}
+      ${submitted&&wrong?`<div style="color:#ff9999;font-size:11px;margin-top:2px">Answer: <strong>${c.blank}</strong></div>`:""}
+    </div>`;
+  }).join("");
+
+  const allOrdered = state.taxOrderDone;
+  const allCloze = t.cloze.every((_,i) => ((state.clozeAnswers||{})[i]||"").trim().length > 0);
+  const bothDone = state.taskDone;
+
+  return `
+    <!-- PART 1 -->
+    <div style="background:rgba(212,175,55,0.08);border:1px solid rgba(212,175,55,0.3);border-radius:8px;padding:0.6rem 1rem;margin-bottom:0.75rem">
+      <strong style="color:#d4af37">Part 1:</strong> <span style="color:#c8d8f0;font-size:13px">Click an item to select it (turns gold), then click another to swap. Put the tax brackets in order from LOWEST to HIGHEST rate.</span>
+    </div>
+    ${orderRows}
+    ${!state.taxOrderDone ? `
+      <div style="display:flex;gap:0.75rem;justify-content:center;margin-bottom:1.5rem;flex-wrap:wrap">
+        <button id="tax-order-check" style="background:#d4af37;color:#0a1628;border:none;border-radius:8px;padding:0.65rem 1.5rem;font-size:14px;font-weight:bold;cursor:pointer">Check Order</button>
+        <button id="tax-order-reset" style="background:rgba(255,255,255,0.08);color:#aaa;border:1px solid #444;border-radius:8px;padding:0.65rem 1.2rem;font-size:13px;cursor:pointer">Reset</button>
+      </div>` :
+      `<div style="color:#90ee90;font-size:13px;text-align:center;margin-bottom:1.25rem;padding:0.5rem;background:rgba(76,175,80,0.1);border-radius:6px">Part 1 complete! Now complete Part 2 below.</div>`
+    }
+
+    <!-- PART 2 -->
+    <div style="background:rgba(212,175,55,0.08);border:1px solid rgba(212,175,55,0.3);border-radius:8px;padding:0.6rem 1rem;margin-bottom:0.75rem">
+      <strong style="color:#d4af37">Part 2:</strong> <span style="color:#c8d8f0;font-size:13px">Fill in the missing words about Australian taxation.</span>
+    </div>
+    ${clozeRows}
+    ${!bothDone ? `
+      <div style="display:flex;gap:0.75rem;justify-content:center;margin-top:0.75rem;flex-wrap:wrap">
+        <button id="tax-cloze-check" ${!allCloze||!allOrdered?"disabled":""} style="background:${allCloze&&allOrdered?"#d4af37":"#333"};color:${allCloze&&allOrdered?"#0a1628":"#666"};border:none;border-radius:8px;padding:0.75rem 2rem;font-size:15px;font-weight:bold;cursor:${allCloze&&allOrdered?"pointer":"not-allowed"}">Submit All Answers</button>
+        <button id="tax-full-reset" style="background:rgba(255,255,255,0.08);color:#aaa;border:1px solid #444;border-radius:8px;padding:0.75rem 1.2rem;font-size:13px;cursor:pointer">Reset All</button>
+      </div>
+      ${!allOrdered?`<p style="color:#888;font-size:12px;text-align:center;margin-top:0.5rem">Complete Part 1 first before submitting.</p>`:""}` :
+      `<div style="text-align:center;margin-top:0.75rem">
+        <button id="tax-full-reset" style="background:rgba(255,255,255,0.08);color:#aaa;border:1px solid #444;border-radius:8px;padding:0.75rem 1.5rem;font-size:14px;cursor:pointer">Try Again</button>
+      </div>`
+    }`;
+}
+
+function renderRank(t) {
+  const leftBtns = t.pairs.map((p,i) => {
+    const matched = state.rankMatches[p.worker];
+    const correct = state.taskDone && matched === p.motivation;
+    const wrong = state.taskDone && matched && matched !== p.motivation;
+    return `<div style="margin-bottom:0.5rem">
+      <button class="rank-worker" data-worker="${p.worker}" style="width:100%;background:${state.rankSelected===p.worker?"rgba(212,175,55,0.2)":correct?"rgba(76,175,80,0.15)":wrong?"rgba(220,50,50,0.15)":"rgba(255,255,255,0.05)"};border:1px solid ${state.rankSelected===p.worker?"#d4af37":correct?"#4caf50":wrong?"#cc4444":"rgba(255,255,255,0.15)"};border-radius:8px;padding:0.6rem 0.8rem;color:${state.rankSelected===p.worker?"#d4af37":"white"};font-size:12px;text-align:left;line-height:1.4;cursor:${state.taskDone?"default":"pointer"}">${p.worker}</button>
+      ${matched?`<div style="font-size:11px;color:#888;margin-top:2px;padding-left:4px;font-style:italic">${matched} ${state.taskDone?(correct?"✓":"✗ correct: "+p.motivation):""}</div>`:""}
+    </div>`;
+  }).join("");
+
+  // Motivations: ALL options shown always, can be reused (no opacity fade)
+  const rightBtns = t.allMotivations.map(m => {
+    const canClick = state.rankSelected && !state.taskDone;
+    return `<button class="rank-mot" data-mot="${m}" style="display:block;width:100%;margin-bottom:0.5rem;background:${canClick?"rgba(212,175,55,0.1)":"rgba(255,255,255,0.05)"};border:1px solid ${canClick?"#d4af37":"rgba(255,255,255,0.15)"};border-radius:8px;padding:0.6rem 0.8rem;color:${canClick?"#d4af37":"white"};font-size:12px;text-align:left;line-height:1.4;cursor:${canClick?"pointer":"default"}">${m}</button>`;
+  }).join("");
+
+  const allMatched = Object.keys(state.rankMatches).length >= t.pairs.length;
+  return `
+    <div style="background:rgba(212,175,55,0.08);border:1px solid rgba(212,175,55,0.2);border-radius:8px;padding:0.6rem 1rem;margin-bottom:1rem;font-size:13px;color:#d4af37">
+      Note: Some motivations may be used more than once!
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem">
+      <div><div style="color:#d4af37;font-size:11px;letter-spacing:2px;margin-bottom:0.75rem">WORKERS</div>${leftBtns}</div>
+      <div><div style="color:#d4af37;font-size:11px;letter-spacing:2px;margin-bottom:0.75rem">MOTIVATIONS (can reuse)</div>${rightBtns}</div>
+    </div>
+    ${state.rankSelected?`<p style="color:#d4af37;font-size:13px;text-align:center;margin-bottom:0.75rem">Click a motivation to match it to the selected worker</p>`:""}
+    ${!state.taskDone ? `
+      <div style="display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap">
+        <button id="rank-check" ${!allMatched?"disabled":""} style="background:${allMatched?"#d4af37":"#333"};color:${allMatched?"#0a1628":"#666"};border:none;border-radius:8px;padding:0.75rem 2rem;font-size:15px;font-weight:bold;cursor:${allMatched?"pointer":"not-allowed"}">Check Matches</button>
+        <button id="rank-retry" style="background:rgba(255,255,255,0.08);color:#aaa;border:1px solid #444;border-radius:8px;padding:0.75rem 1.5rem;font-size:14px;cursor:pointer">Reset</button>
+      </div>` : `
+      <div style="text-align:center">
+        <button id="rank-retry" style="background:rgba(255,255,255,0.08);color:#aaa;border:1px solid #444;border-radius:8px;padding:0.75rem 1.5rem;font-size:14px;cursor:pointer;margin-top:0.5rem">Try Again</button>
+      </div>`}`;
+}
+
+function renderJigsaw(t) {
+  const usedSys = Object.values(state.jigsawConnected);
+  const systems = [...new Set(t.pieces.map(p=>p.system))];
+  const leftBtns = t.pieces.map((p,i) => {
+    const conn = state.jigsawConnected[p.desc];
+    const correct = state.taskDone && conn === p.system;
+    const wrong = state.taskDone && conn && conn !== p.system;
+    return `<div style="margin-bottom:0.5rem">
+      <button class="jigsaw-desc" data-desc="${p.desc}" style="width:100%;background:${state.jigsawSelected===p.desc?"rgba(212,175,55,0.2)":correct?"rgba(76,175,80,0.15)":wrong?"rgba(220,50,50,0.15)":"rgba(255,255,255,0.05)"};border:1px solid ${state.jigsawSelected===p.desc?"#d4af37":correct?"#4caf50":wrong?"#cc4444":"rgba(255,255,255,0.15)"};border-radius:8px;padding:0.75rem;color:${state.jigsawSelected===p.desc?"#d4af37":"white"};font-size:13px;text-align:left;line-height:1.5;cursor:${state.taskDone?"default":"pointer"}">🧩 ${p.desc}</button>
+      ${conn?`<div style="font-size:11px;color:#888;margin-top:2px;padding-left:4px">${conn}</div>`:""}
+    </div>`;
+  }).join("");
+  const rightBtns = systems.map(sys => {
+    const eg = t.pieces.find(p=>p.system===sys)?.eg;
+    const isUsed = usedSys.includes(sys);
+    const canClick = state.jigsawSelected && !state.taskDone;
+    return `<button class="jigsaw-sys" data-sys="${sys}" style="display:block;width:100%;margin-bottom:0.5rem;background:${canClick&&!isUsed?"rgba(212,175,55,0.1)":"rgba(255,255,255,0.05)"};border:1px solid ${canClick&&!isUsed?"#d4af37":"rgba(255,255,255,0.15)"};border-radius:8px;padding:0.75rem;cursor:${canClick&&!isUsed?"pointer":"default"};text-align:left;opacity:${isUsed&&!state.taskDone?0.5:1}">
+      <div style="color:${canClick&&!isUsed?"#d4af37":"white"};font-weight:600;font-size:13px">${sys}</div>
+      <div style="color:#888;font-size:11px">${eg}</div>
+    </button>`;
+  }).join("");
+  const allConn = Object.keys(state.jigsawConnected).length >= t.pieces.length;
+  return `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem">
+      <div><div style="color:#d4af37;font-size:11px;letter-spacing:2px;margin-bottom:0.75rem">DESCRIPTIONS</div>${leftBtns}</div>
+      <div><div style="color:#d4af37;font-size:11px;letter-spacing:2px;margin-bottom:0.75rem">ECONOMIC SYSTEMS</div>${rightBtns}</div>
+    </div>
+    ${state.jigsawSelected?`<p style="color:#d4af37;font-size:13px;text-align:center;margin-bottom:0.75rem">Now click the matching economic system</p>`:""}
+    ${!state.taskDone?`<button id="jigsaw-check" ${!allConn?"disabled":""} style="background:${allConn?"#d4af37":"#333"};color:${allConn?"#0a1628":"#666"};border:none;border-radius:8px;padding:0.75rem 2rem;font-size:15px;font-weight:bold;display:block;margin:0 auto;cursor:${allConn?"pointer":"not-allowed"}">Check Connections</button>`:""}`;
+}
+
+function renderWorkTypes(t) {
+  const sel = state.workSel;
+  const matches = state.workMatches || {};
+  const done = state.taskDone;
+
+  // Definitions for hover tooltips
+  const empDefs = {
+    "Full-time": "Works 38 hours per week with a regular income — usually receives paid leave and benefits",
+    "Part-time": "Works fewer than 38 hours per week — regular hours but less than full-time",
+    "Casual": "Called in to work only when needed — no set hours and no guarantee of work",
+    "Self-employed / Contractor": "Works for themselves — sets their own hours, finds their own clients and keeps the profit",
+    "Not in paid employment": "Does not have a job — may be retired, studying, or living off investments"
+  };
+
+  const workerCards = t.workers.map((w,i) => {
+    const m = matches[i] || {};
+    const isSel = sel === i;
+    const empDone = !!m.employment;
+    const incDone = !!m.income;
+    const bothDone = empDone && incDone;
+    const empCorrect = done && m.employment === w.employment;
+    const incCorrect = done && m.income === w.income;
+    const cardBg = isSel ? "rgba(212,175,55,0.15)" : done ? (empCorrect&&incCorrect?"rgba(76,175,80,0.12)":"rgba(220,50,50,0.1)") : bothDone ? "rgba(76,175,80,0.07)" : "rgba(255,255,255,0.04)";
+    const cardBc = isSel ? "#d4af37" : done ? (empCorrect&&incCorrect?"#4caf50":"#cc4444") : bothDone ? "rgba(76,175,80,0.5)" : "rgba(255,255,255,0.1)";
+
+    // Build inline picker (shown when this card is selected)
+    const inlinePicker = isSel ? `
+      <div style="margin-top:0.75rem;border-top:1px solid rgba(212,175,55,0.3);padding-top:0.75rem">
+        <div style="color:#d4af37;font-size:11px;letter-spacing:2px;margin-bottom:0.5rem">💼 SELECT EMPLOYMENT TYPE <span style="color:#888;font-size:10px;font-style:italic;letter-spacing:0">(hover for definition)</span></div>
+        <div style="display:flex;flex-wrap:wrap;gap:0.4rem;margin-bottom:0.75rem">
+          ${t.employmentTypes.map(et => {
+            const chosen = m.employment === et;
+            return `<button class="work-emp" data-et="${et}" title="${empDefs[et]||""}"
+              style="background:${chosen?"rgba(212,175,55,0.35)":"rgba(255,255,255,0.08)"};border:1px solid ${chosen?"#d4af37":"rgba(255,255,255,0.2)"};border-radius:6px;padding:0.45rem 0.8rem;color:${chosen?"#ffd700":"#ccc"};font-size:12px;font-weight:${chosen?"bold":"normal"};cursor:pointer;transition:background 0.15s"
+              onmouseover="this.querySelector('.tooltip')&&(this.querySelector('.tooltip').style.display='block')"
+              onmouseout="this.querySelector('.tooltip')&&(this.querySelector('.tooltip').style.display='none')"
+            >${chosen?"✓ ":""}${et}</button>`;
+          }).join("")}
+        </div>
+        <div style="color:#7ab8d4;font-size:11px;letter-spacing:2px;margin-bottom:0.5rem">💰 SELECT INCOME TYPE</div>
+        <div style="display:flex;flex-wrap:wrap;gap:0.4rem;margin-bottom:0.75rem">
+          ${t.incomeTypes.map(it => {
+            const chosen = m.income === it;
+            return `<button class="work-inc" data-it="${it}" style="background:${chosen?"rgba(100,160,212,0.35)":"rgba(255,255,255,0.08)"};border:1px solid ${chosen?"#7ab8d4":"rgba(255,255,255,0.2)"};border-radius:6px;padding:0.45rem 0.8rem;color:${chosen?"#a8d4f0":"#ccc"};font-size:12px;font-weight:${chosen?"bold":"normal"};cursor:pointer">${chosen?"✓ ":""}${it}</button>`;
+          }).join("")}
+        </div>
+        ${empDone&&incDone ? `<button id="work-confirm" style="background:#d4af37;color:#0a1628;border:none;border-radius:6px;padding:0.5rem 1.25rem;font-size:13px;font-weight:bold;cursor:pointer">Save & Close ✓</button>` : `<p style="color:#888;font-size:12px;margin:0">Select both an employment type and income type above</p>`}
+      </div>` : "";
+
+    return `<div style="background:${cardBg};border:2px solid ${cardBc};border-radius:10px;padding:0.85rem;margin-bottom:0.5rem">
+      <button class="work-worker" data-i="${i}" style="background:transparent;border:none;width:100%;text-align:left;cursor:${done?"default":"pointer"};padding:0;color:white">
+        <div style="font-size:14px;color:#d4af37;font-weight:600;margin-bottom:0.25rem">Worker ${i+1}</div>
+        <div style="font-size:13px;color:#c8d8f0;line-height:1.6;margin-bottom:0.5rem">${w.name}</div>
+        <div style="display:flex;gap:0.4rem;flex-wrap:wrap;align-items:center">
+          <span style="font-size:12px;background:${empDone?(done?(empCorrect?"rgba(76,175,80,0.25)":"rgba(220,50,50,0.25)"):"rgba(212,175,55,0.2)"):"rgba(255,255,255,0.06)"};border:1px solid ${empDone?(done?(empCorrect?"#4caf50":"#cc4444"):"#d4af37"):"rgba(255,255,255,0.2)"};border-radius:5px;padding:3px 8px;color:${empDone?(done?(empCorrect?"#90ee90":"#ff9999"):"#ffd700"):"#666"}">
+            💼 ${empDone?m.employment:"Employment type?"}
+          </span>
+          <span style="font-size:12px;background:${incDone?(done?(incCorrect?"rgba(76,175,80,0.25)":"rgba(220,50,50,0.25)"):"rgba(100,160,212,0.2)"):"rgba(255,255,255,0.06)"};border:1px solid ${incDone?(done?(incCorrect?"#4caf50":"#cc4444"):"#7ab8d4"):"rgba(255,255,255,0.2)"};border-radius:5px;padding:3px 8px;color:${incDone?(done?(incCorrect?"#90ee90":"#ff9999"):"#a8d4f0"):"#666"}">
+            💰 ${incDone?m.income:"Income type?"}
+          </span>
+          ${!done&&!bothDone?`<span style="font-size:11px;color:#888;margin-left:4px">← click to answer</span>`:""}
+          ${!done&&bothDone?`<span style="font-size:11px;color:#4caf50;margin-left:4px">✓ answered (click to change)</span>`:""}
+        </div>
+        ${done && (!empCorrect||!incCorrect) ? `<div style="font-size:11px;color:#ff9999;margin-top:5px">✗ Correct answers: ${w.employment} / ${w.income}</div>` : ""}
+      </button>
+      ${inlinePicker}
+    </div>`;
+  }).join("");
+
+  const bonusQ = t.bonus;
+  const bonusSel = state.workBonusAns;
+  const bonusHtml = `
+    <div style="background:rgba(212,175,55,0.08);border:1px solid rgba(212,175,55,0.3);border-radius:10px;padding:1rem;margin-bottom:1rem">
+      <div style="color:#d4af37;font-size:12px;letter-spacing:2px;margin-bottom:0.5rem">⭐ BONUS QUESTION</div>
+      <p style="color:#c8d8f0;font-size:14px;margin:0 0 0.75rem">${bonusQ.q}</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.4rem">${bonusQ.opts.map((o,i) => {
+        const isSel = bonusSel === i;
+        const bg = done?(i===bonusQ.correct?"rgba(76,175,80,0.2)":isSel?"rgba(220,50,50,0.2)":"rgba(255,255,255,0.03)"):isSel?"rgba(212,175,55,0.2)":"rgba(255,255,255,0.05)";
+        const bc = done?(i===bonusQ.correct?"#4caf50":isSel?"#cc4444":"rgba(255,255,255,0.1)"):isSel?"#d4af37":"rgba(255,255,255,0.1)";
+        const tc = done?(i===bonusQ.correct?"#90ee90":isSel?"#ff9999":"#777"):isSel?"#d4af37":"white";
+        return `<button class="work-bonus" data-i="${i}" style="background:${bg};border:1px solid ${bc};border-radius:6px;padding:0.5rem;font-size:13px;text-align:left;color:${tc};cursor:${done?"default":"pointer"}">${o}</button>`;
+      }).join("")}</div>
+    </div>`;
+
+  const allMatched = t.workers.every((_,i) => matches[i]?.employment && matches[i]?.income);
+  const bonusAnswered = bonusSel !== null && bonusSel !== undefined;
+  return `
+    <div style="background:rgba(212,175,55,0.08);border:1px solid rgba(212,175,55,0.2);border-radius:8px;padding:0.65rem 1rem;margin-bottom:1rem">
+      <p style="color:#d4af37;margin:0;font-size:13px">👇 Click each worker card to assign their employment type and income type. Hover over the employment buttons to see definitions.</p>
+    </div>
+    ${workerCards}
+    ${bonusHtml}
+    ${!done ? `<button id="work-check" ${!(allMatched&&bonusAnswered)?"disabled":""} style="background:${allMatched&&bonusAnswered?"#d4af37":"#333"};color:${allMatched&&bonusAnswered?"#0a1628":"#666"};border:none;border-radius:8px;padding:0.75rem 2rem;font-size:15px;font-weight:bold;display:block;margin:0 auto;cursor:${allMatched&&bonusAnswered?"pointer":"not-allowed"}">Submit All Answers</button>` : ""}`;
+}
+
+function renderFutureWork(t) {
+  const done = state.taskDone;
+  // Part 1: match scenarios to drivers
+  const fw_sel = state.fwSel;
+  const fw_matches = state.fwMatches || {};
+  const leftBtns = t.matchPairs.map((p,i) => {
+    const matched = fw_matches[i];
+    const correct = done && matched === p.driver;
+    const wrong = done && matched && matched !== p.driver;
+    return `<div style="margin-bottom:0.4rem">
+      <button class="fw-scenario" data-i="${i}" style="width:100%;background:${fw_sel===i?"rgba(212,175,55,0.2)":correct?"rgba(76,175,80,0.15)":wrong?"rgba(220,50,50,0.15)":"rgba(255,255,255,0.05)"};border:1px solid ${fw_sel===i?"#d4af37":correct?"#4caf50":wrong?"#cc4444":"rgba(255,255,255,0.15)"};border-radius:8px;padding:0.65rem;color:${fw_sel===i?"#d4af37":"white"};font-size:13px;text-align:left;line-height:1.5;cursor:${done?"default":"pointer"}">🌐 ${p.scenario}</button>
+      ${matched?`<div style="font-size:11px;color:#888;padding-left:4px;margin-top:2px">${matched}${done?(correct?" ✓":" ✗ → "+p.driver):""}</div>`:""}
+    </div>`;
+  }).join("");
+  const rightBtns = t.drivers.map(d => {
+    const used = Object.values(fw_matches).includes(d);
+    const canClick = fw_sel !== null && fw_sel !== undefined && !done;
+    return `<button class="fw-driver" data-d="${d}" style="display:block;width:100%;margin-bottom:0.4rem;background:${canClick&&!used?"rgba(212,175,55,0.1)":"rgba(255,255,255,0.05)"};border:1px solid ${canClick&&!used?"#d4af37":"rgba(255,255,255,0.15)"};border-radius:8px;padding:0.65rem;color:${canClick&&!used?"#d4af37":"white"};font-size:12px;font-weight:600;text-align:left;cursor:${canClick&&!used?"pointer":"default"};opacity:${used&&!done?0.5:1}">${d}</button>`;
+  }).join("");
+
+  // Part 2: true/false
+  const tfRows = t.trueFalse.map((s,i) => {
+    const ans = (state.fwTfAnswers||{})[i];
+    const trueBg = ans===true?(done?(s.answer?"rgba(76,175,80,0.3)":"rgba(220,50,50,0.3)"):"rgba(76,200,76,0.2)"):"rgba(255,255,255,0.05)";
+    const falseBg = ans===false?(done?(s.answer===false?"rgba(76,175,80,0.3)":"rgba(220,50,50,0.3)"):"rgba(220,50,50,0.2)"):"rgba(255,255,255,0.05)";
+    return `<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:0.8rem;margin-bottom:0.4rem;display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap">
+      <p style="flex:1;color:#c8d8f0;margin:0;font-size:13px;min-width:200px">${i+1}. ${s.text}</p>
+      <div style="display:flex;gap:0.4rem">
+        <button class="fw-tf" data-i="${i}" data-val="true" style="background:${trueBg};border:1px solid ${ans===true?(s.answer?"#4caf50":"#cc4444"):"rgba(255,255,255,0.15)"};border-radius:6px;padding:0.35rem 0.8rem;font-size:13px;font-weight:600;color:${ans===true?"white":"#888"};cursor:${done?"default":"pointer"};min-width:56px">TRUE</button>
+        <button class="fw-tf" data-i="${i}" data-val="false" style="background:${falseBg};border:1px solid ${ans===false?(s.answer===false?"#4caf50":"#cc4444"):"rgba(255,255,255,0.15)"};border-radius:6px;padding:0.35rem 0.8rem;font-size:13px;font-weight:600;color:${ans===false?"white":"#888"};cursor:${done?"default":"pointer"};min-width:56px">FALSE</button>
+      </div>
+    </div>`;
+  }).join("");
+
+  const allMatchDone = t.matchPairs.every((_,i) => fw_matches[i]);
+  const allTfDone = t.trueFalse.every((_,i) => (state.fwTfAnswers||{})[i] !== undefined);
+  return `
+    <div style="background:rgba(212,175,55,0.08);border:1px solid rgba(212,175,55,0.3);border-radius:8px;padding:0.65rem 1rem;margin-bottom:0.75rem">
+      <strong style="color:#d4af37">Part 1:</strong> <span style="color:#c8d8f0;font-size:13px">Click a scenario (turns gold), then click the technology driver that caused it.</span>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem">
+      <div><div style="color:#d4af37;font-size:11px;letter-spacing:2px;margin-bottom:0.5rem">SCENARIOS</div>${leftBtns}</div>
+      <div><div style="color:#d4af37;font-size:11px;letter-spacing:2px;margin-bottom:0.5rem">TECHNOLOGY DRIVERS</div>${rightBtns}</div>
+    </div>
+    ${fw_sel !== null && fw_sel !== undefined ? `<p style="color:#d4af37;font-size:13px;text-align:center;margin-bottom:0.5rem">Click the driver that matches the selected scenario</p>` : ""}
+    <div style="background:rgba(212,175,55,0.08);border:1px solid rgba(212,175,55,0.3);border-radius:8px;padding:0.65rem 1rem;margin-bottom:0.75rem">
+      <strong style="color:#d4af37">Part 2:</strong> <span style="color:#c8d8f0;font-size:13px">True or False about changing work patterns.</span>
+    </div>
+    ${tfRows}
+    ${!done ? `<button id="fw-check" ${!(allMatchDone&&allTfDone)?"disabled":""} style="background:${allMatchDone&&allTfDone?"#d4af37":"#333"};color:${allMatchDone&&allTfDone?"#0a1628":"#666"};border:none;border-radius:8px;padding:0.75rem 2rem;font-size:15px;font-weight:bold;display:block;margin:0.75rem auto 0;cursor:${allMatchDone&&allTfDone?"pointer":"not-allowed"}">Submit All Answers</button>` : ""}`;
+}
+
+function renderSupplyDemand(t) {
+  const gi = state.sdGraph;
+  const g = t.graphs[gi];
+  const done = state.taskDone;
+  const allGraphsDone = t.graphs.every((_,i) => {
+    const qs = t.graphs[i].questions;
+    return qs.every((_,qi) => state.sdAnswers[i*10+qi] !== undefined);
+  });
+
+  // Draw SVG graph
+  function makeGraph(g) {
+    const W=260, H=180, pad=40;
+    const maxX=12, maxY=12;
+    const sx = x => pad + x*(W-pad)/maxX;
+    const sy = y => H - pad - y*(H-pad)/maxY;
+
+    // Grid lines
+    let grid = "";
+    for(let i=0;i<=6;i++){
+      const gx = pad + i*(W-pad)/6;
+      const gy = H - pad - i*(H-pad)/6;
+      grid += `<line x1="${gx}" y1="${pad}" x2="${gx}" y2="${H-pad}" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>`;
+      grid += `<line x1="${pad}" y1="${gy}" x2="${W}" y2="${gy}" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>`;
+      if(i>0){
+        grid += `<text x="${gx}" y="${H-pad+12}" fill="#666" font-size="8" text-anchor="middle">${i*2}</text>`;
+        grid += `<text x="${pad-4}" y="${gy+3}" fill="#666" font-size="8" text-anchor="end">${i*2}</text>`;
+      }
+    }
+
+    // Demand curve
+    const dpts = g.demandPts.map(([x,y])=>`${sx(x)},${sy(y)}`).join(" ");
+    let dLine = `<polyline points="${dpts}" stroke="#ff6b6b" stroke-width="2.5" fill="none"/>`;
+    const dlast = g.demandPts[g.demandPts.length-1];
+    dLine += `<text x="${sx(dlast[0])+4}" y="${sy(dlast[1])}" fill="#ff6b6b" font-size="9" font-weight="bold">D</text>`;
+
+    // Shifted demand?
+    let sdLine = "";
+    if(g.shiftDemandPts){
+      const sdpts = g.shiftDemandPts.map(([x,y])=>`${sx(x)},${sy(y)}`).join(" ");
+      sdLine = `<polyline points="${sdpts}" stroke="#ffaa88" stroke-width="2" fill="none" stroke-dasharray="5,3"/>`;
+      const sdlast = g.shiftDemandPts[g.shiftDemandPts.length-1];
+      sdLine += `<text x="${sx(sdlast[0])+4}" y="${sy(sdlast[1])}" fill="#ffaa88" font-size="9">D2</text>`;
+    }
+
+    // Supply curve
+    const spts = g.supplyPts.map(([x,y])=>`${sx(x)},${sy(y)}`).join(" ");
+    let sLine = `<polyline points="${spts}" stroke="#6bddff" stroke-width="2.5" fill="none"/>`;
+    const slast = g.supplyPts[g.supplyPts.length-1];
+    sLine += `<text x="${sx(slast[0])+4}" y="${sy(slast[1])}" fill="#6bddff" font-size="9" font-weight="bold">S</text>`;
+
+    // Shifted supply?
+    let ssLine = "";
+    if(g.shiftSupplyPts){
+      const sspts = g.shiftSupplyPts.map(([x,y])=>`${sx(x)},${sy(y)}`).join(" ");
+      ssLine = `<polyline points="${sspts}" stroke="#88ccff" stroke-width="2" fill="none" stroke-dasharray="5,3"/>`;
+      const sslast = g.shiftSupplyPts[g.shiftSupplyPts.length-1];
+      ssLine += `<text x="${sx(sslast[0])+4}" y="${sy(sslast[1])}" fill="#88ccff" font-size="9">S2</text>`;
+    }
+
+    // Equilibrium dot
+    const eqX = sx(g.eqQ), eqY = sy(g.eqP);
+    let eq = `<circle cx="${eqX}" cy="${eqY}" r="5" fill="#ffd700" stroke="#fff" stroke-width="1"/>`;
+    eq += `<line x1="${pad}" y1="${eqY}" x2="${eqX}" y2="${eqY}" stroke="#ffd700" stroke-width="1" stroke-dasharray="3,2"/>`;
+    eq += `<line x1="${eqX}" y1="${eqY}" x2="${eqX}" y2="${H-pad}" stroke="#ffd700" stroke-width="1" stroke-dasharray="3,2"/>`;
+    eq += `<text x="${pad-3}" y="${eqY+3}" fill="#ffd700" font-size="8" text-anchor="end">$${g.eqP}</text>`;
+    eq += `<text x="${eqX}" y="${H-pad+12}" fill="#ffd700" font-size="8" text-anchor="middle">Q${g.eqQ}</text>`;
+
+    // New equilibrium?
+    let neq = "";
+    if(g.newEqP !== undefined){
+      const neqX=sx(g.newEqQ), neqY=sy(g.newEqP);
+      neq = `<circle cx="${neqX}" cy="${neqY}" r="5" fill="#90ee90" stroke="#fff" stroke-width="1"/>`;
+      neq += `<line x1="${pad}" y1="${neqY}" x2="${neqX}" y2="${neqY}" stroke="#90ee90" stroke-width="1" stroke-dasharray="3,2"/>`;
+      neq += `<line x1="${neqX}" y1="${neqY}" x2="${neqX}" y2="${H-pad}" stroke="#90ee90" stroke-width="1" stroke-dasharray="3,2"/>`;
+      neq += `<text x="${pad-3}" y="${neqY+3}" fill="#90ee90" font-size="8" text-anchor="end">$${g.newEqP}</text>`;
+      neq += `<text x="${neqX}" y="${H-pad+12}" fill="#90ee90" font-size="8" text-anchor="middle">Q${g.newEqQ}</text>`;
+    }
+
+    return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;max-width:340px;background:rgba(0,0,0,0.4);border-radius:8px;border:1px solid rgba(255,255,255,0.1)">
+      ${grid}
+      <line x1="${pad}" y1="${pad}" x2="${pad}" y2="${H-pad}" stroke="#aaa" stroke-width="1.5"/>
+      <line x1="${pad}" y1="${H-pad}" x2="${W}" y2="${H-pad}" stroke="#aaa" stroke-width="1.5"/>
+      <text x="${pad/2}" y="${H/2}" fill="#aaa" font-size="9" text-anchor="middle" transform="rotate(-90,${pad/2},${H/2})">Price ($)</text>
+      <text x="${(W+pad)/2}" y="${H-2}" fill="#aaa" font-size="9" text-anchor="middle">Quantity</text>
+      ${grid}${dLine}${sdLine}${sLine}${ssLine}${eq}${neq}
+    </svg>`;
+  }
+
+  // Questions for this graph
+  const qHtml = g.questions.map((q,qi) => {
+    const key = gi*10+qi;
+    const sel = state.sdAnswers[key];
+    const opts = q.opts.map((opt,ai) => {
+      const isSelected = sel===ai;
+      const bg = done?(ai===q.correct?"rgba(76,175,80,0.25)":isSelected?"rgba(220,50,50,0.2)":"rgba(255,255,255,0.03)"):isSelected?"rgba(212,175,55,0.2)":"rgba(255,255,255,0.05)";
+      const bc = done?(ai===q.correct?"#4caf50":isSelected?"#cc4444":"rgba(255,255,255,0.1)"):isSelected?"#d4af37":"rgba(255,255,255,0.1)";
+      const tc = done?(ai===q.correct?"#90ee90":isSelected?"#ff9999":"#666"):isSelected?"#d4af37":"white";
+      return `<button class="sd-opt" data-gi="${gi}" data-qi="${qi}" data-ai="${ai}" style="background:${bg};border:1px solid ${bc};border-radius:6px;padding:0.5rem 0.75rem;font-size:13px;text-align:left;color:${tc};cursor:${done?"default":"pointer"}">${opt}</button>`;
+    }).join("");
+    return `<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:0.75rem;margin-bottom:0.5rem">
+      <p style="color:#c8d8f0;margin:0 0 0.6rem;font-size:13px;font-weight:500">Q${qi+1}: ${q.q}</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.4rem">${opts}</div>
+    </div>`;
+  }).join("");
+
+  const graphThisAnswered = g.questions.every((_,qi) => state.sdAnswers[gi*10+qi] !== undefined);
+  const isLastGraph = gi === t.graphs.length-1;
+  const totalAnswered = t.graphs.reduce((acc,gr,i)=>acc + gr.questions.filter((_,qi)=>state.sdAnswers[i*10+qi]!==undefined).length, 0);
+  const totalQ = t.graphs.reduce((acc,gr)=>acc+gr.questions.length,0);
+  const allGraphQDone = t.graphs.every((gr,i) => gr.questions.every((_,qi) => state.sdAnswers[i*10+qi] !== undefined));
+
+  // True/False section
+  const tfHtml = (t.trueFalse && isLastGraph) ? (() => {
+    const rows = t.trueFalse.map((s,i) => {
+      const ans = (state.sdTfAnswers||{})[i];
+      const trueBg = ans===true?(done?(s.answer?"rgba(76,175,80,0.3)":"rgba(220,50,50,0.3)"):"rgba(76,200,76,0.2)"):"rgba(255,255,255,0.05)";
+      const falseBg = ans===false?(done?(s.answer===false?"rgba(76,175,80,0.3)":"rgba(220,50,50,0.3)"):"rgba(220,50,50,0.2)"):"rgba(255,255,255,0.05)";
+      return `<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:0.75rem;margin-bottom:0.5rem;display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap">
+        <p style="flex:1;color:#c8d8f0;margin:0;font-size:14px;min-width:200px">${i+1}. ${s.text}</p>
+        <div style="display:flex;gap:0.4rem;flex-shrink:0">
+          <button class="sd-tf" data-i="${i}" data-val="true" style="background:${trueBg};border:1px solid ${ans===true?(s.answer?"#4caf50":"#cc4444"):"rgba(255,255,255,0.15)"};border-radius:6px;padding:0.4rem 0.9rem;font-size:13px;font-weight:600;color:${ans===true?"white":"#888"};cursor:${done?"default":"pointer"};min-width:60px">TRUE</button>
+          <button class="sd-tf" data-i="${i}" data-val="false" style="background:${falseBg};border:1px solid ${ans===false?(s.answer===false?"#4caf50":"#cc4444"):"rgba(255,255,255,0.15)"};border-radius:6px;padding:0.4rem 0.9rem;font-size:13px;font-weight:600;color:${ans===false?"white":"#888"};cursor:${done?"default":"pointer"};min-width:60px">FALSE</button>
+        </div>
+      </div>`;
+    }).join("");
+    const allTfDone = t.trueFalse.every((_,i) => (state.sdTfAnswers||{})[i] !== undefined);
+    return `
+      <div style="background:rgba(212,175,55,0.08);border:1px solid rgba(212,175,55,0.3);border-radius:8px;padding:0.65rem 1rem;margin:1rem 0 0.75rem">
+        <strong style="color:#d4af37">Part 2 — True or False:</strong> <span style="color:#c8d8f0;font-size:13px">Answer all statements about supply and demand.</span>
+      </div>
+      ${rows}
+      ${!done ? `<button id="sd-check" ${!(allGraphsDone&&allTfDone)?"disabled":""} style="background:${allGraphsDone&&allTfDone?"#d4af37":"#333"};color:${allGraphsDone&&allTfDone?"#0a1628":"#666"};border:none;border-radius:8px;padding:0.75rem 2rem;font-size:15px;font-weight:bold;display:block;margin:1rem auto 0;cursor:${allGraphsDone&&allTfDone?"pointer":"not-allowed"}">Submit All Answers</button>` : ""}`;
+  })() : "";
+
+  // Progress dots
+  const dots = t.graphs.map((gr,i) => {
+    const allAns = gr.questions.every((_,qi)=>state.sdAnswers[i*10+qi]!==undefined);
+    const isCurrent = i===gi;
+    return `<button class="sd-nav" data-gi="${i}" style="width:32px;height:32px;border-radius:50%;background:${isCurrent?"#d4af37":allAns?"rgba(76,175,80,0.4)":"rgba(255,255,255,0.1)"};border:2px solid ${isCurrent?"#d4af37":allAns?"#4caf50":"rgba(255,255,255,0.2)"};color:${isCurrent?"#0a1628":"white"};font-size:12px;font-weight:bold;cursor:pointer">${i+1}</button>`;
+  }).join("");
+
+  return `
+    <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;flex-wrap:wrap">
+      ${dots}
+      <span style="color:#888;font-size:12px;margin-left:auto">${totalAnswered}/${totalQ} graph questions answered</span>
+    </div>
+    <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(212,175,55,0.3);border-radius:10px;padding:1rem;margin-bottom:0.75rem">
+      <h3 style="color:#d4af37;margin:0 0 0.75rem;font-size:15px">${g.title}</h3>
+      ${g.shiftNote?`<div style="background:rgba(212,175,55,0.1);border-radius:6px;padding:0.4rem 0.75rem;margin-bottom:0.75rem;font-size:12px;color:#d4af37">${g.shiftNote} — dashed line shows new curve</div>`:""}
+      <div style="display:flex;justify-content:center;margin-bottom:1rem">${makeGraph(g)}</div>
+      <div style="display:flex;gap:1.5rem;flex-wrap:wrap;justify-content:center;font-size:11px;margin-bottom:0.75rem">
+        <span style="color:#ff6b6b">&#9644; Demand (D)</span>
+        <span style="color:#6bddff">&#9644; Supply (S)</span>
+        <span style="color:#ffd700">&#11044; Equilibrium</span>
+        ${g.newEqP!==undefined?`<span style="color:#90ee90">&#11044; New Equilibrium</span>`:""}
+        ${g.shiftDemandPts?`<span style="color:#ffaa88">- - D2 (shifted)</span>`:""}
+        ${g.shiftSupplyPts?`<span style="color:#88ccff">- - S2 (shifted)</span>`:""}
+      </div>
+      ${qHtml}
+    </div>
+    <div style="display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;margin-bottom:0.5rem">
+      ${gi>0?`<button class="sd-nav" data-gi="${gi-1}" style="background:rgba(255,255,255,0.08);color:#aaa;border:1px solid #444;border-radius:8px;padding:0.6rem 1.2rem;font-size:13px;cursor:pointer">← Previous Graph</button>`:""}
+      ${!isLastGraph?`<button class="sd-nav" data-gi="${gi+1}" ${!graphThisAnswered?"disabled":""} style="background:${graphThisAnswered?"#d4af37":"#333"};color:${graphThisAnswered?"#0a1628":"#666"};border:none;border-radius:8px;padding:0.6rem 1.5rem;font-size:13px;font-weight:bold;cursor:${graphThisAnswered?"pointer":"not-allowed"}">Next Graph →</button>`:""}
+      ${isLastGraph&&!done&&!t.trueFalse?`<button id="sd-check" ${!allGraphsDone?"disabled":""} style="background:${allGraphsDone?"#d4af37":"#333"};color:${allGraphsDone?"#0a1628":"#666"};border:none;border-radius:8px;padding:0.75rem 2rem;font-size:15px;font-weight:bold;cursor:${allGraphsDone?"pointer":"not-allowed"}">Submit All Answers</button>`:""}
+    </div>
+    ${tfHtml}`;
+}
+
+function renderHintPanel(taskId) {
+  if (!state.showHint) {
+    const remaining = Math.max(0, 4 - state.attemptCount);
+    if (remaining === 0) return "";
+    return `<div style="background:rgba(255,255,255,0.03);border:1px dashed rgba(212,175,55,0.25);border-radius:8px;padding:0.6rem 1rem;margin-top:0.75rem;text-align:center">
+      <span style="color:#666;font-size:12px">💡 Hint unlocks after ${remaining} more incorrect attempt${remaining===1?"":"s"}</span>
+    </div>`;
+  }
+  const hint = HINTS[taskId] || "Review your class notes and think carefully about each answer.";
+
+  // Word bank for Task 14 cloze activity
+  const wordBank = taskId === 14 ? `
+    <div style="margin-top:0.9rem;background:rgba(0,0,0,0.25);border:1px solid rgba(212,175,55,0.4);border-radius:8px;padding:0.9rem 1rem">
+      <div style="color:#d4af37;font-size:12px;font-weight:bold;letter-spacing:2px;margin-bottom:0.6rem">WORD BANK</div>
+      <div style="display:flex;flex-wrap:wrap;gap:0.5rem">
+        ${["income tax","Services","progressive","roads","no"].map(w =>
+          `<span style="background:rgba(212,175,55,0.15);border:1px solid rgba(212,175,55,0.5);border-radius:6px;padding:0.35rem 0.85rem;color:#ffd700;font-size:13px;font-weight:600">${w}</span>`
+        ).join("")}
+      </div>
+      <p style="color:#888;font-size:11px;margin:0.5rem 0 0">Each word is used once. Answers are not case-sensitive.</p>
+    </div>` : "";
+
+  return `<div style="background:rgba(212,175,55,0.12);border:2px solid #d4af37;border-radius:10px;padding:1rem 1.25rem;margin-top:0.75rem">
+    <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem">
+      <span style="font-size:20px">💡</span>
+      <strong style="color:#d4af37;font-size:14px">HINT UNLOCKED</strong>
+      <span style="font-size:11px;color:#888;margin-left:auto">After 4 attempts</span>
+    </div>
+    <p style="color:#f0e6c0;font-size:13px;line-height:1.7;margin:0">${hint}</p>
+    ${wordBank}
+  </div>`;
+}
+
+function attachEvents() {
+  // INTRO
+  const nameInp = document.getElementById("name-input");
+  if (nameInp) {
+    nameInp.addEventListener("input", e => { state.nameInput = e.target.value; });
+    nameInp.addEventListener("keydown", e => { if (e.key==="Enter" && state.nameInput.trim()) startMission(state.nameInput.trim()); });
+  }
+  const acceptBtn = document.getElementById("accept-mission");
+  if (acceptBtn) acceptBtn.addEventListener("click", () => { if (state.nameInput.trim()) startMission(state.nameInput.trim()); });
+  const beginBtn = document.getElementById("begin-mission");
+  if (beginBtn) beginBtn.addEventListener("click", () => { state.screen="hub"; render(); });
+  const resumeBtn = document.getElementById("resume-mission");
+  if (resumeBtn) resumeBtn.addEventListener("click", () => { state.screen="hub"; render(); });
+  const showLoginBtn = document.getElementById("show-teacher-login");
+  if (showLoginBtn) showLoginBtn.addEventListener("click", () => { state.showTeacherLogin=true; render(); });
+
+  // TEACHER LOGIN MODAL
+  const pwInp = document.getElementById("pw-input");
+  if (pwInp) {
+    pwInp.addEventListener("input", e => { state.pwInput=e.target.value; state.pwError=false; });
+    pwInp.addEventListener("keydown", e => { if (e.key==="Enter") tryPwSubmit(); });
+  }
+  const pwSubmit = document.getElementById("pw-submit");
+  if (pwSubmit) pwSubmit.addEventListener("click", tryPwSubmit);
+  const pwCancel = document.getElementById("pw-cancel");
+  if (pwCancel) pwCancel.addEventListener("click", () => { state.showTeacherLogin=false; state.pwInput=""; state.pwError=false; state.teacherChoice=false; render(); });
+  const pwCancel2 = document.getElementById("pw-cancel2");
+  if (pwCancel2) pwCancel2.addEventListener("click", () => { state.showTeacherLogin=false; state.pwInput=""; state.teacherChoice=false; state.teacherAuthed=false; render(); });
+  const goTeacher = document.getElementById("go-teacher-dash");
+  if (goTeacher) goTeacher.addEventListener("click", () => { state.showTeacherLogin=false; state.teacherChoice=false; state.screen="teacher"; render(); });
+  const goPreview = document.getElementById("go-preview");
+  if (goPreview) goPreview.addEventListener("click", () => { state.showTeacherLogin=false; state.teacherChoice=false; state.isPreview=true; state.studentName=""; state.screen="hub"; render(); });
+
+  // HUB
+  document.querySelectorAll(".task-card").forEach(btn => {
+    btn.addEventListener("click", () => goToTask(parseInt(btn.dataset.idx)));
+  });
+  const goTask14 = document.getElementById("go-task-16");
+  if (goTask14) goTask14.addEventListener("click", () => goToTask(16));
+  const hubBack = document.getElementById("hub-back");
+  if (hubBack) hubBack.addEventListener("click", () => { state.screen="intro"; state.studentName=""; render(); });
+  const hubTeacher = document.getElementById("hub-teacher");
+  if (hubTeacher) hubTeacher.addEventListener("click", () => { state.showTeacherLogin=true; render(); });
+  const reloadProgress = document.getElementById("hub-reload-progress");
+  if (reloadProgress) reloadProgress.addEventListener("click", async () => {
+    if (!state.studentName) return;
+    showCloudToast("saving", "Loading from cloud…");
+    const saved = await loadFromSheet(state.studentName);
+    if (saved && saved.completed && saved.completed.length > 0) {
+      state.completedTasks = saved.completed;
+      state.unlockedCode = saved.unlockedCode || {};
+      showCloudToast("saved", `Loaded! ${saved.completed.length}/16 tasks restored`);
+      render();
+    } else {
+      showCloudToast("error", "No cloud save found for " + state.studentName);
+    }
+  });
+  const exitPreview = document.getElementById("exit-preview");
+  if (exitPreview) exitPreview.addEventListener("click", () => { state.isPreview=false; state.teacherAuthed=false; state.studentName=""; state.screen="intro"; render(); });
+  const toggleCode = document.getElementById("toggle-code");
+  if (toggleCode) toggleCode.addEventListener("click", () => { state.showCode=!state.showCode; render(); });
+
+  // TEACHER DASH
+  const teacherBack = document.getElementById("teacher-back");
+  if (teacherBack) teacherBack.addEventListener("click", () => { state.screen="hub"; render(); });
+  const resetBtn = document.getElementById("reset-progress");
+  if (resetBtn) resetBtn.addEventListener("click", () => {
+    if (confirm("Reset progress for " + state.studentName + "? This cannot be undone.")) {
+      state.completedTasks=[]; state.unlockedCode={};
+      saveToSheet(state.studentName, [], {});
+      state.studentName=""; state.isPreview=false; state.teacherAuthed=false; state.screen="intro"; render();
+    }
+  });
+  const exitTeacher = document.getElementById("exit-teacher");
+  if (exitTeacher) exitTeacher.addEventListener("click", () => { state.teacherAuthed=false; state.isPreview=false; state.screen="intro"; render(); });
+
+  // TASK
+  const taskBack = document.getElementById("task-back");
+  if (taskBack) taskBack.addEventListener("click", () => { state.screen="hub"; render(); });
+  const taskDoneBack = document.getElementById("task-done-back");
+  if (taskDoneBack) taskDoneBack.addEventListener("click", () => { state.screen="hub"; render(); });
+  const taskSkip = document.getElementById("task-skip");
+  if (taskSkip) taskSkip.addEventListener("click", () => {
+    const t = TASKS[state.currentTask];
+    completeTask(t.id, t.codeDigit);
+    state.screen="hub"; render();
+  });
+
+  // SORT
+  document.querySelectorAll(".sort-chip").forEach(btn => {
+    btn.addEventListener("click", () => { if (state.taskDone) return; const i=parseInt(btn.dataset.i); state.sortSelected = state.sortSelected===i?null:i; render(); });
+  });
+  document.querySelectorAll(".sort-bucket").forEach(div => {
+    div.addEventListener("click", () => {
+      if (state.sortSelected===null||state.taskDone) return;
+      const cat = div.dataset.cat;
+      const item = state.sortRemaining[state.sortSelected];
+      state.sortBuckets[cat].push(item);
+      state.sortRemaining.splice(state.sortSelected,1);
+      state.sortSelected=null;
+      render();
+    });
+  });
+  document.querySelectorAll(".sort-remove").forEach(btn => {
+    btn.addEventListener("click", e => {
+      e.stopPropagation();
+      if (state.taskDone) return;
+      const cat=btn.dataset.cat; const ii=parseInt(btn.dataset.ii);
+      const item=state.sortBuckets[cat].splice(ii,1)[0];
+      state.sortRemaining.push(item);
+      render();
+    });
+  });
+  const sortCheck = document.getElementById("sort-check");
+  if (sortCheck) sortCheck.addEventListener("click", () => {
+    const t = TASKS[state.currentTask];
+    if (state.sortRemaining.length>0) { wrongAnswer(); return; }
+    const allCorrect = t.cats.every(cat => state.sortBuckets[cat].every(item=>item.correct===cat));
+    allCorrect ? completeTask(t.id,t.codeDigit) : wrongAnswer();
+  });
+
+  // MULTISELECT
+  document.querySelectorAll(".multi-opt").forEach(btn => {
+    btn.addEventListener("click", () => { if (state.taskDone) return; const i=parseInt(btn.dataset.i); const idx=state.multiSel.indexOf(i); idx>=0?state.multiSel.splice(idx,1):state.multiSel.push(i); render(); });
+  });
+  const multiCheck = document.getElementById("multi-check");
+  if (multiCheck) multiCheck.addEventListener("click", () => {
+    const t=TASKS[state.currentTask];
+    const ci=t.options.map((o,i)=>o.correct?i:null).filter(x=>x!==null);
+    (ci.length===state.multiSel.length&&ci.every(i=>state.multiSel.includes(i)))?completeTask(t.id,t.codeDigit):wrongAnswer();
+  });
+
+  // MATCH
+  document.querySelectorAll(".match-left").forEach(btn => {
+    btn.addEventListener("click", () => { if (state.taskDone) return; const l=btn.dataset.left; if (state.matchMatches[l]) { delete state.matchMatches[l]; state.matchSelected=null; } else { state.matchSelected=state.matchSelected===l?null:l; } render(); });
+  });
+  document.querySelectorAll(".match-right").forEach(btn => {
+    btn.addEventListener("click", () => { if (!state.matchSelected||state.taskDone) return; state.matchMatches[state.matchSelected]=btn.dataset.right; state.matchSelected=null; render(); });
+  });
+  const matchCheck = document.getElementById("match-check");
+  if (matchCheck) matchCheck.addEventListener("click", () => {
+    const t=TASKS[state.currentTask];
+    if (Object.keys(state.matchMatches).length<t.pairs.length) { wrongAnswer(); return; }
+    t.pairs.every(p=>state.matchMatches[p.left]===p.right)?completeTask(t.id,t.codeDigit):wrongAnswer();
+  });
+
+  // MCQ
+  document.querySelectorAll(".mcq-opt").forEach(btn => {
+    btn.addEventListener("click", () => { if (state.taskDone) return; const qi=parseInt(btn.dataset.qi); const ai=parseInt(btn.dataset.ai); const isFinal=btn.dataset.final==="1"; if(isFinal) state.finalAnswers[qi]=ai; else state.mcqAnswers[qi]=ai; render(); });
+  });
+  const mcqCheck = document.getElementById("mcq-check");
+  if (mcqCheck) mcqCheck.addEventListener("click", () => {
+    const t=TASKS[state.currentTask]; const isFinal=mcqCheck.dataset.final==="1";
+    const ans=isFinal?state.finalAnswers:state.mcqAnswers;
+    if (t.questions.every((q,i)=>ans[i]===q.correct)) { completeTask(t.id,t.codeDigit); }
+    else { wrongAnswer(); if (isFinal) { state.finalAnswers={}; render(); } }
+  });
+
+  // TRUE/FALSE
+  document.querySelectorAll(".tf-btn").forEach(btn => {
+    btn.addEventListener("click", () => { if (state.taskDone) return; const i=parseInt(btn.dataset.i); const val=btn.dataset.val==="true"; state.tfAnswers[i]=val; render(); });
+  });
+  const tfCheck = document.getElementById("tf-check");
+  if (tfCheck) tfCheck.addEventListener("click", () => {
+    const t=TASKS[state.currentTask];
+    t.statements.every((s,i)=>state.tfAnswers[i]===s.answer)?completeTask(t.id,t.codeDigit):wrongAnswer();
+  });
+
+  // ORDER
+  document.querySelectorAll(".order-item").forEach(div => {
+    div.addEventListener("click", () => {
+      const t=TASKS[state.currentTask]; if (t.isPreordered||state.taskDone) return;
+      const i=parseInt(div.dataset.i);
+      if (state.orderSelected===null) { state.orderSelected=i; render(); return; }
+      if (state.orderSelected===i) { state.orderSelected=null; render(); return; }
+      const tmp=state.orderList[state.orderSelected]; state.orderList[state.orderSelected]=state.orderList[i]; state.orderList[i]=tmp;
+      state.orderSelected=null; render();
+    });
+  });
+  const orderCheck = document.getElementById("order-check");
+  if (orderCheck) orderCheck.addEventListener("click", () => {
+    const t=TASKS[state.currentTask];
+    if (t.isPreordered||state.orderList.every((s,i)=>s===t.steps[i])) completeTask(t.id,t.codeDigit);
+    else wrongAnswer();
+  });
+
+  // DIAGRAM
+  document.querySelectorAll(".diag-box").forEach(g => {
+    g.addEventListener("click", () => { if (state.taskDone) return; state.diagOpen=g.dataset.id; render(); });
+  });
+  document.querySelectorAll(".diag-opt").forEach(btn => {
+    btn.addEventListener("click", () => { state.diagAnswers[state.diagOpen]=btn.dataset.label; state.diagOpen=null; render(); });
+  });
+  const diagCancel = document.getElementById("diag-cancel");
+  if (diagCancel) diagCancel.addEventListener("click", () => { state.diagOpen=null; render(); });
+  const diagCheck = document.getElementById("diag-check");
+  if (diagCheck) diagCheck.addEventListener("click", () => {
+    const t=TASKS[state.currentTask];
+    const sectorsOk = t.blanks.every(b=>state.diagAnswers[b.id]===b.answer);
+    const arrowsOk = t.arrowBlanks ? t.arrowBlanks.every(b=>state.diagAnswers[b.id]===b.answer) : true;
+    (sectorsOk && arrowsOk)?completeTask(t.id,t.codeDigit):wrongAnswer();
+  });
+  const diagRetry = document.getElementById("diag-retry");
+  if (diagRetry) diagRetry.addEventListener("click", () => {
+    state.diagAnswers={}; state.diagOpen=null; state.taskDone=false; state.taskMsg=""; state.taskMsgOk=false; state.attemptCount=0; state.showHint=false;
+    const idx=state.completedTasks.indexOf(TASKS[state.currentTask].id);
+    if(idx>-1){state.completedTasks.splice(idx,1); delete state.unlockedCode[TASKS[state.currentTask].id]; saveProgress();}
+    render();
+  });
+
+  // CIPHER (text input)
+  const cipherInp = document.getElementById("cipher-input");
+  if (cipherInp) {
+    cipherInp.focus();
+    cipherInp.addEventListener("input", e => {
+      state.cipherInput = e.target.value;
+      // Only update the submit button state without full re-render
+      const btn = document.getElementById("cipher-check");
+      if (btn) {
+        const hasText = e.target.value.trim().length >= 5;
+        btn.disabled = !hasText;
+        btn.style.background = hasText ? "#d4af37" : "#333";
+        btn.style.color = hasText ? "#0a1628" : "#666";
+        btn.style.cursor = hasText ? "pointer" : "not-allowed";
+      }
+    });
+  }
+  const cipherCheck = document.getElementById("cipher-check");
+  if (cipherCheck) cipherCheck.addEventListener("click", () => {
+    const t = TASKS[state.currentTask];
+    const normalised = (state.cipherInput||"").trim().toUpperCase().replace(/\s+/g," ");
+    normalised === t.displayAnswer ? completeTask(t.id, t.codeDigit) : wrongAnswer();
+  });
+
+  // WORK TYPES
+  document.querySelectorAll(".work-worker").forEach(btn => {
+    btn.addEventListener("click", () => {
+      if (state.taskDone) return;
+      const i = parseInt(btn.dataset.i);
+      state.workSel = state.workSel === i ? null : i;
+      render();
+    });
+  });
+  document.querySelectorAll(".work-emp").forEach(btn => {
+    btn.addEventListener("click", () => {
+      if (state.workSel === null || state.workSel === undefined || state.taskDone) return;
+      if (!state.workMatches[state.workSel]) state.workMatches[state.workSel] = {};
+      state.workMatches[state.workSel].employment = btn.dataset.et;
+      render();
+    });
+  });
+  document.querySelectorAll(".work-inc").forEach(btn => {
+    btn.addEventListener("click", () => {
+      if (state.workSel === null || state.workSel === undefined || state.taskDone) return;
+      if (!state.workMatches[state.workSel]) state.workMatches[state.workSel] = {};
+      state.workMatches[state.workSel].income = btn.dataset.it;
+      render();
+    });
+  });
+  document.querySelectorAll(".work-bonus").forEach(btn => {
+    btn.addEventListener("click", () => { if (state.taskDone) return; state.workBonusAns = parseInt(btn.dataset.i); render(); });
+  });
+  const workConfirm = document.getElementById("work-confirm");
+  if (workConfirm) workConfirm.addEventListener("click", () => { state.workSel = null; render(); });
+  const workCheck = document.getElementById("work-check");
+  if (workCheck) workCheck.addEventListener("click", () => {
+    const t = TASKS[state.currentTask];
+    const workersOk = t.workers.every((w,i) => state.workMatches[i]?.employment === w.employment && state.workMatches[i]?.income === w.income);
+    const bonusOk = state.workBonusAns === t.bonus.correct;
+    (workersOk && bonusOk) ? completeTask(t.id, t.codeDigit) : wrongAnswer();
+  });
+
+  // FUTURE WORK
+  document.querySelectorAll(".fw-scenario").forEach(btn => {
+    btn.addEventListener("click", () => {
+      if (state.taskDone) return;
+      const i = parseInt(btn.dataset.i);
+      state.fwSel = state.fwSel === i ? null : i;
+      render();
+    });
+  });
+  document.querySelectorAll(".fw-driver").forEach(btn => {
+    btn.addEventListener("click", () => {
+      if (state.fwSel === null || state.fwSel === undefined || state.taskDone) return;
+      if (!state.fwMatches) state.fwMatches = {};
+      state.fwMatches[state.fwSel] = btn.dataset.d;
+      state.fwSel = null;
+      render();
+    });
+  });
+  document.querySelectorAll(".fw-tf").forEach(btn => {
+    btn.addEventListener("click", () => {
+      if (state.taskDone) return;
+      if (!state.fwTfAnswers) state.fwTfAnswers = {};
+      state.fwTfAnswers[parseInt(btn.dataset.i)] = btn.dataset.val === "true";
+      render();
+    });
+  });
+  const fwCheck = document.getElementById("fw-check");
+  if (fwCheck) fwCheck.addEventListener("click", () => {
+    const t = TASKS[state.currentTask];
+    const matchOk = t.matchPairs.every((p,i) => state.fwMatches[i] === p.driver);
+    const tfOk = t.trueFalse.every((s,i) => state.fwTfAnswers[i] === s.answer);
+    (matchOk && tfOk) ? completeTask(t.id, t.codeDigit) : wrongAnswer();
+  });
+
+
+  // SCENARIO
+  document.querySelectorAll(".scenario-opt").forEach(btn => {
+    btn.addEventListener("click", () => {
+      if (state.taskDone) return;
+      const i=parseInt(btn.dataset.i); const ai=parseInt(btn.dataset.ai);
+      state.scenarioAnswers[i]=ai;
+      const t=TASKS[state.currentTask];
+      if (ai===t.scenarios[i].correct) state.scenarioExpls[i]=t.scenarios[i].explanation;
+      render();
+    });
+  });
+  const scenarioCheck = document.getElementById("scenario-check");
+  if (scenarioCheck) scenarioCheck.addEventListener("click", () => {
+    const t=TASKS[state.currentTask];
+    t.scenarios.every((s,i)=>state.scenarioAnswers[i]===s.correct)?completeTask(t.id,t.codeDigit):wrongAnswer();
+  });
+
+  // RANK
+  document.querySelectorAll(".rank-worker").forEach(btn => {
+    btn.addEventListener("click", () => { if (state.taskDone) return; const w=btn.dataset.worker; state.rankSelected=state.rankSelected===w?null:w; render(); });
+  });
+  document.querySelectorAll(".rank-mot").forEach(btn => {
+    btn.addEventListener("click", () => { if (!state.rankSelected||state.taskDone) return; state.rankMatches[state.rankSelected]=btn.dataset.mot; state.rankSelected=null; render(); });
+  });
+  const rankCheck = document.getElementById("rank-check");
+  if (rankCheck) rankCheck.addEventListener("click", () => {
+    const t=TASKS[state.currentTask];
+    t.pairs.every(p=>state.rankMatches[p.worker]===p.motivation)?completeTask(t.id,t.codeDigit):wrongAnswer();
+  });
+  const rankRetry = document.getElementById("rank-retry");
+  if (rankRetry) rankRetry.addEventListener("click", () => {
+    state.rankMatches={}; state.rankSelected=null; state.taskDone=false; state.taskMsg=""; state.taskMsgOk=false; state.attemptCount=0; state.showHint=false;
+    const idx=state.completedTasks.indexOf(TASKS[state.currentTask].id);
+    if(idx>-1){state.completedTasks.splice(idx,1); delete state.unlockedCode[TASKS[state.currentTask].id]; saveProgress();}
+    render();
+  });
+
+  // TAXATION
+  document.querySelectorAll(".cloze-input").forEach(inp => {
+    inp.addEventListener("input", e => {
+      if (!state.clozeAnswers) state.clozeAnswers={};
+      state.clozeAnswers[parseInt(e.target.dataset.i)] = e.target.value;
+    });
+  });
+  const taxOrderCheck = document.getElementById("tax-order-check");
+  if (taxOrderCheck) taxOrderCheck.addEventListener("click", () => {
+    const t=TASKS[state.currentTask];
+    if (state.orderList.every((s,i)=>s===t.steps[i])) { state.taxOrderDone=true; render(); }
+    else wrongAnswer();
+  });
+  const taxOrderReset = document.getElementById("tax-order-reset");
+  if (taxOrderReset) taxOrderReset.addEventListener("click", () => {
+    const t=TASKS[state.currentTask];
+    state.orderList=[...t.scrambled]; state.orderSelected=null; state.taxOrderDone=false; render();
+  });
+  const taxClozeCheck = document.getElementById("tax-cloze-check");
+  if (taxClozeCheck) taxClozeCheck.addEventListener("click", () => {
+    const t=TASKS[state.currentTask];
+    state.taxClozeSubmitted=true;
+    const allCorrect=t.cloze.every((_,i)=>(state.clozeAnswers[i]||"").trim().toLowerCase()===t.cloze[i].blank.toLowerCase());
+    if(allCorrect) completeTask(t.id,t.codeDigit);
+    else { wrongAnswer(); render(); }
+  });
+  const taxFullReset = document.getElementById("tax-full-reset");
+  if (taxFullReset) taxFullReset.addEventListener("click", () => {
+    const t=TASKS[state.currentTask];
+    state.orderList=[...t.scrambled]; state.orderSelected=null; state.taxOrderDone=false;
+    state.clozeAnswers={}; state.taxClozeSubmitted=false;
+    state.taskDone=false; state.taskMsg=""; state.taskMsgOk=false; state.attemptCount=0; state.showHint=false;
+    const idx=state.completedTasks.indexOf(t.id);
+    if(idx>-1){state.completedTasks.splice(idx,1); delete state.unlockedCode[t.id]; saveProgress();}
+    render();
+  });
+
+  // JIGSAW
+  document.querySelectorAll(".jigsaw-desc").forEach(btn => {
+    btn.addEventListener("click", () => { if (state.taskDone) return; const d=btn.dataset.desc; state.jigsawSelected=state.jigsawSelected===d?null:d; render(); });
+  });
+  document.querySelectorAll(".jigsaw-sys").forEach(btn => {
+    btn.addEventListener("click", () => { if (!state.jigsawSelected||state.taskDone) return; state.jigsawConnected[state.jigsawSelected]=btn.dataset.sys; state.jigsawSelected=null; render(); });
+  });
+  const jigsawCheck = document.getElementById("jigsaw-check");
+  if (jigsawCheck) jigsawCheck.addEventListener("click", () => {
+    const t=TASKS[state.currentTask];
+    t.pieces.every(p=>state.jigsawConnected[p.desc]===p.system)?completeTask(t.id,t.codeDigit):wrongAnswer();
+  });
+
+  // SUPPLY & DEMAND
+  document.querySelectorAll(".sd-opt").forEach(btn => {
+    btn.addEventListener("click", () => {
+      if (state.taskDone) return;
+      const gi=parseInt(btn.dataset.gi), qi=parseInt(btn.dataset.qi), ai=parseInt(btn.dataset.ai);
+      state.sdAnswers[gi*10+qi] = ai;
+      render();
+    });
+  });
+  document.querySelectorAll(".sd-nav").forEach(btn => {
+    btn.addEventListener("click", () => { state.sdGraph=parseInt(btn.dataset.gi); render(); });
+  });
+  const sdCheck = document.getElementById("sd-check");
+  if (sdCheck) sdCheck.addEventListener("click", () => {
+    const t=TASKS[state.currentTask];
+    const allCorrect = t.graphs.every((g,i) => g.questions.every((q,qi) => state.sdAnswers[i*10+qi]===q.correct))
+      && (!t.trueFalse || t.trueFalse.every((s,i) => state.sdTfAnswers[i] === s.answer));
+    allCorrect ? completeTask(t.id,t.codeDigit) : wrongAnswer();
+  });
+
+  // SD TRUE/FALSE
+  document.querySelectorAll(".sd-tf").forEach(btn => {
+    btn.addEventListener("click", () => {
+      if (state.taskDone) return;
+      if (!state.sdTfAnswers) state.sdTfAnswers = {};
+      state.sdTfAnswers[parseInt(btn.dataset.i)] = btn.dataset.val === "true";
+      render();
+    });
+  });
+
+} // end attachEvents
+
+function tryPwSubmit() {
+  if (state.pwInput === TEACHER_PASSWORD) { state.teacherAuthed=true; state.teacherChoice=true; state.pwError=false; render(); }
+  else { state.pwError=true; render(); }
+}
+
+// INIT
+render();
+</script>
+</body>
+</html>
